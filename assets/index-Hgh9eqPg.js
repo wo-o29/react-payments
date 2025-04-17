@@ -12475,12 +12475,12 @@ const useAddCard = () => {
   const previewState = { cardNumberState, expireDate };
   return { addCardState, previewState };
 };
-const previewCard = "_previewCard_bizh4_1";
-const previewHeader = "_previewHeader_bizh4_14";
-const chip = "_chip_bizh4_19";
-const cardNumber = "_cardNumber_bizh4_26";
-const dots = "_dots_bizh4_42";
-const expire = "_expire_bizh4_47";
+const previewCard = "_previewCard_8qvoe_1";
+const previewHeader = "_previewHeader_8qvoe_14";
+const chip = "_chip_8qvoe_20";
+const cardNumber = "_cardNumber_8qvoe_27";
+const dots = "_dots_8qvoe_43";
+const expire = "_expire_8qvoe_48";
 const styles$1 = {
   previewCard,
   previewHeader,

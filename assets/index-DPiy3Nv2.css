@@ -293,7 +293,7 @@ input::-webkit-inner-spin-button {
   font-family: "Noto Sans KR";
   font-size: 0.75rem;
 }
-._previewCard_bizh4_1 {
+._previewCard_8qvoe_1 {
   margin: 0 auto;
   width: 26.5625rem;
   height: 16.5625rem;
@@ -306,19 +306,20 @@ input::-webkit-inner-spin-button {
   gap: 2rem;
 }
 
-._previewHeader_bizh4_14 {
+._previewHeader_8qvoe_14 {
   display: flex;
   justify-content: space-between;
+  height: 67.5px;
 }
 
-._chip_bizh4_19 {
+._chip_8qvoe_20 {
   width: 3.75rem;
   height: 2.8125rem;
   background-color: #ddcd78;
   border-radius: 4px;
 }
 
-._cardNumber_bizh4_26 {
+._cardNumber_8qvoe_27 {
   color: #fff;
   display: flex;
   align-items: center;
@@ -329,17 +330,17 @@ input::-webkit-inner-spin-button {
   height: 25px;
 }
 
-._cardNumber_bizh4_26 > span {
+._cardNumber_8qvoe_27 > span {
   letter-spacing: 5px;
   width: 70px;
 }
 
-._dots_bizh4_42 {
+._dots_8qvoe_43 {
   display: flex;
   gap: 0.65rem;
 }
 
-._expire_bizh4_47 {
+._expire_8qvoe_48 {
   color: #fff;
   font-size: 25px;
   font-weight: 500;
@@ -348,12 +349,12 @@ input::-webkit-inner-spin-button {
   padding: 0 0.25rem;
 }
 
-._expire_bizh4_47 > span {
+._expire_8qvoe_48 > span {
   display: inline-block;
   width: 35px;
 }
 
-._expire_bizh4_47 > span:nth-child(2) {
+._expire_8qvoe_48 > span:nth-child(2) {
   width: auto;
   padding-right: 0.25rem;
 }
