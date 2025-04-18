@@ -247,7 +247,7 @@ input::-webkit-inner-spin-button {
 ._input_v81jq_1::-webkit-input-placeholder {
   letter-spacing: 0.6992px;
 }
-._container_1xa0n_1 {
+._container_ju1v7_1 {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -255,21 +255,25 @@ input::-webkit-inner-spin-button {
   height: 80px;
 }
 
-._expireDateInputContainer_1xa0n_9 {
+._expireDateInputContainer_ju1v7_9 {
   display: flex;
   gap: 0.62rem;
 }
 
-._expireDateInputBox_1xa0n_14 {
+._expireDateBox_ju1v7_14 {
   width: 50%;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  justify-content: flex-end;
-  height: 90px;
 }
 
-._errorMessage_1xa0n_23 {
+._expireDateInputBox_ju1v7_18 {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  height: 80px;
+  padding-bottom: 0.5rem;
+}
+
+._errorMessage_ju1v7_27 {
   color: #ff3d3d;
   font-family: "Noto Sans KR";
   font-size: 0.75rem;

@@ -12094,15 +12094,11 @@ const styles$7 = {
   title,
   guideText
 };
-function CardInputBox({
-  title: title2,
-  guideText: guideText2,
-  InputComponents
-}) {
+function CardInputBox({ title: title2, guideText: guideText2, InputComponent }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$7.container, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: styles$7.title, children: title2 }),
     guideText2 && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: styles$7.guideText, children: guideText2 }),
-    InputComponents
+    InputComponent
   ] });
 }
 const container$2 = "_container_1cm80_1";
@@ -12183,7 +12179,9 @@ function CardNumberInputs({
         Input,
         {
           id: `card-number-${inputKey}-input`,
+          role: `card-number-${inputKey}-input`,
           type: "text",
+          inputMode: "numeric",
           maxLength: 4,
           placeholder: "1234",
           isError: cardNumberState[inputKey].isError,
@@ -12195,13 +12193,15 @@ function CardNumberInputs({
     isCardNumberValid && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { id: "error-message", className: styles$6.errorMessage, children: "4자리의 숫자만 입력 가능합니다." })
   ] });
 }
-const container$1 = "_container_1xa0n_1";
-const expireDateInputContainer = "_expireDateInputContainer_1xa0n_9";
-const expireDateInputBox = "_expireDateInputBox_1xa0n_14";
-const errorMessage$1 = "_errorMessage_1xa0n_23";
+const container$1 = "_container_ju1v7_1";
+const expireDateInputContainer = "_expireDateInputContainer_ju1v7_9";
+const expireDateBox = "_expireDateBox_ju1v7_14";
+const expireDateInputBox = "_expireDateInputBox_ju1v7_18";
+const errorMessage$1 = "_errorMessage_ju1v7_27";
 const styles$3 = {
   container: container$1,
   expireDateInputContainer,
+  expireDateBox,
   expireDateInputBox,
   errorMessage: errorMessage$1
 };
@@ -12228,22 +12228,25 @@ function CardExpireDateInputs({
     MM: handleExpireMonthChange,
     YY: handleExpireYearChange
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: styles$3.container, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: styles$3.expireDateInputContainer, children: EXPIRE_DATE_KEYS.map((expireKey, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: styles$3.expireDateInputBox, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: `expire-${expireKey}-input`, isHidden: idx !== 0, children: "유효 기간" }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      Input,
-      {
-        id: `expire-${expireKey}-input`,
-        type: "text",
-        maxLength: 2,
-        placeholder: expireKey,
-        isError: Boolean(expireDate[expireKey].errorMessage),
-        value: expireDate[expireKey].value,
-        onChange: (e) => changeEvent[expireKey](e.target.value),
-        onBlur: expireKey === "MM" ? (e) => handleExpireMonthBlur(e.target.value) : void 0
-      }
-    ),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: styles$3.container, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: styles$3.expireDateInputContainer, children: EXPIRE_DATE_KEYS.map((expireKey, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$3.expireDateBox, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: styles$3.expireDateInputBox, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: `expire-${expireKey}-input`, isHidden: idx !== 0, children: "유효 기간" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        Input,
+        {
+          id: `expire-${expireKey}-input`,
+          type: "text",
+          inputMode: "numeric",
+          maxLength: 2,
+          placeholder: expireKey,
+          isError: Boolean(expireDate[expireKey].errorMessage),
+          value: expireDate[expireKey].value,
+          onChange: (e) => changeEvent[expireKey](e.target.value),
+          onBlur: expireKey === "MM" ? (e) => handleExpireMonthBlur(e.target.value) : void 0
+        }
+      )
+    ] }),
+    expireDate[expireKey].errorMessage && /* @__PURE__ */ jsxRuntimeExports.jsx(
       "span",
       {
         id: `${expireKey}-error-message`,
@@ -12268,7 +12271,9 @@ function CVCInputs({ CVCState, handleCVCChange }) {
       Input,
       {
         id: "cvc-input",
+        role: "cvc-input",
         type: "text",
+        inputMode: "numeric",
         maxLength: 3,
         placeholder: "123",
         isError: CVCState.isError,
@@ -12279,8 +12284,8 @@ function CVCInputs({ CVCState, handleCVCChange }) {
     CVCState.isError && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { id: "error-message", className: styles$2.errorMessage, children: "3자리의 숫자만 입력 가능합니다." })
   ] });
 }
-function AddCardForm({
-  addCardState: {
+function AddCardForm({ addCardState }) {
+  const {
     cardNumberState,
     handleCardNumberChange,
     expireDate,
@@ -12289,15 +12294,14 @@ function AddCardForm({
     handleExpireMonthBlur,
     CVCState,
     handleCVCChange
-  }
-}) {
+  } = addCardState;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { className: styles$8.form, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       CardInputBox,
       {
         title: "결제할 카드 번호를 입력해 주세요",
         guideText: "본인 명의의 카드만 결제 가능합니다.",
-        InputComponents: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        InputComponent: /* @__PURE__ */ jsxRuntimeExports.jsx(
           CardNumberInputs,
           {
             cardNumberState,
@@ -12311,7 +12315,7 @@ function AddCardForm({
       {
         title: "카드 유효기간을 입력해 주세요",
         guideText: "월/년도(MMYY)를 순서대로 입력해 주세요.",
-        InputComponents: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        InputComponent: /* @__PURE__ */ jsxRuntimeExports.jsx(
           CardExpireDateInputs,
           {
             expireDate,
@@ -12326,7 +12330,7 @@ function AddCardForm({
       CardInputBox,
       {
         title: "CVC 번호를 입력해 주세요",
-        InputComponents: /* @__PURE__ */ jsxRuntimeExports.jsx(CVCInputs, { CVCState, handleCVCChange })
+        InputComponent: /* @__PURE__ */ jsxRuntimeExports.jsx(CVCInputs, { CVCState, handleCVCChange })
       }
     )
   ] });
