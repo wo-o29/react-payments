@@ -12080,40 +12080,2281 @@ function requireClient() {
 }
 var clientExports = requireClient();
 const ReactDOM = /* @__PURE__ */ getDefaultExportFromCjs(clientExports);
-const container$3 = "_container_wor1f_1";
-const styles$9 = {
-  container: container$3
+var dist = {};
+var hasRequiredDist;
+function requireDist() {
+  if (hasRequiredDist) return dist;
+  hasRequiredDist = 1;
+  Object.defineProperty(dist, "__esModule", { value: true });
+  dist.parse = parse;
+  dist.serialize = serialize;
+  const cookieNameRegExp = /^[\u0021-\u003A\u003C\u003E-\u007E]+$/;
+  const cookieValueRegExp = /^[\u0021-\u003A\u003C-\u007E]*$/;
+  const domainValueRegExp = /^([.]?[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)([.][a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)*$/i;
+  const pathValueRegExp = /^[\u0020-\u003A\u003D-\u007E]*$/;
+  const __toString = Object.prototype.toString;
+  const NullObject = /* @__PURE__ */ (() => {
+    const C = function() {
+    };
+    C.prototype = /* @__PURE__ */ Object.create(null);
+    return C;
+  })();
+  function parse(str, options) {
+    const obj = new NullObject();
+    const len = str.length;
+    if (len < 2)
+      return obj;
+    const dec = (options == null ? void 0 : options.decode) || decode;
+    let index = 0;
+    do {
+      const eqIdx = str.indexOf("=", index);
+      if (eqIdx === -1)
+        break;
+      const colonIdx = str.indexOf(";", index);
+      const endIdx = colonIdx === -1 ? len : colonIdx;
+      if (eqIdx > endIdx) {
+        index = str.lastIndexOf(";", eqIdx - 1) + 1;
+        continue;
+      }
+      const keyStartIdx = startIndex(str, index, eqIdx);
+      const keyEndIdx = endIndex(str, eqIdx, keyStartIdx);
+      const key = str.slice(keyStartIdx, keyEndIdx);
+      if (obj[key] === void 0) {
+        let valStartIdx = startIndex(str, eqIdx + 1, endIdx);
+        let valEndIdx = endIndex(str, endIdx, valStartIdx);
+        const value = dec(str.slice(valStartIdx, valEndIdx));
+        obj[key] = value;
+      }
+      index = endIdx + 1;
+    } while (index < len);
+    return obj;
+  }
+  function startIndex(str, index, max) {
+    do {
+      const code = str.charCodeAt(index);
+      if (code !== 32 && code !== 9)
+        return index;
+    } while (++index < max);
+    return max;
+  }
+  function endIndex(str, index, min) {
+    while (index > min) {
+      const code = str.charCodeAt(--index);
+      if (code !== 32 && code !== 9)
+        return index + 1;
+    }
+    return min;
+  }
+  function serialize(name, val, options) {
+    const enc = (options == null ? void 0 : options.encode) || encodeURIComponent;
+    if (!cookieNameRegExp.test(name)) {
+      throw new TypeError(`argument name is invalid: ${name}`);
+    }
+    const value = enc(val);
+    if (!cookieValueRegExp.test(value)) {
+      throw new TypeError(`argument val is invalid: ${val}`);
+    }
+    let str = name + "=" + value;
+    if (!options)
+      return str;
+    if (options.maxAge !== void 0) {
+      if (!Number.isInteger(options.maxAge)) {
+        throw new TypeError(`option maxAge is invalid: ${options.maxAge}`);
+      }
+      str += "; Max-Age=" + options.maxAge;
+    }
+    if (options.domain) {
+      if (!domainValueRegExp.test(options.domain)) {
+        throw new TypeError(`option domain is invalid: ${options.domain}`);
+      }
+      str += "; Domain=" + options.domain;
+    }
+    if (options.path) {
+      if (!pathValueRegExp.test(options.path)) {
+        throw new TypeError(`option path is invalid: ${options.path}`);
+      }
+      str += "; Path=" + options.path;
+    }
+    if (options.expires) {
+      if (!isDate(options.expires) || !Number.isFinite(options.expires.valueOf())) {
+        throw new TypeError(`option expires is invalid: ${options.expires}`);
+      }
+      str += "; Expires=" + options.expires.toUTCString();
+    }
+    if (options.httpOnly) {
+      str += "; HttpOnly";
+    }
+    if (options.secure) {
+      str += "; Secure";
+    }
+    if (options.partitioned) {
+      str += "; Partitioned";
+    }
+    if (options.priority) {
+      const priority = typeof options.priority === "string" ? options.priority.toLowerCase() : void 0;
+      switch (priority) {
+        case "low":
+          str += "; Priority=Low";
+          break;
+        case "medium":
+          str += "; Priority=Medium";
+          break;
+        case "high":
+          str += "; Priority=High";
+          break;
+        default:
+          throw new TypeError(`option priority is invalid: ${options.priority}`);
+      }
+    }
+    if (options.sameSite) {
+      const sameSite = typeof options.sameSite === "string" ? options.sameSite.toLowerCase() : options.sameSite;
+      switch (sameSite) {
+        case true:
+        case "strict":
+          str += "; SameSite=Strict";
+          break;
+        case "lax":
+          str += "; SameSite=Lax";
+          break;
+        case "none":
+          str += "; SameSite=None";
+          break;
+        default:
+          throw new TypeError(`option sameSite is invalid: ${options.sameSite}`);
+      }
+    }
+    return str;
+  }
+  function decode(str) {
+    if (str.indexOf("%") === -1)
+      return str;
+    try {
+      return decodeURIComponent(str);
+    } catch (e) {
+      return str;
+    }
+  }
+  function isDate(val) {
+    return __toString.call(val) === "[object Date]";
+  }
+  return dist;
+}
+requireDist();
+/**
+ * react-router v7.5.1
+ *
+ * Copyright (c) Remix Software Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE.md file in the root directory of this source tree.
+ *
+ * @license MIT
+ */
+var PopStateEventType = "popstate";
+function createBrowserHistory(options = {}) {
+  function createBrowserLocation(window2, globalHistory) {
+    let { pathname, search, hash } = window2.location;
+    return createLocation(
+      "",
+      { pathname, search, hash },
+      // state defaults to `null` because `window.history.state` does
+      globalHistory.state && globalHistory.state.usr || null,
+      globalHistory.state && globalHistory.state.key || "default"
+    );
+  }
+  function createBrowserHref(window2, to) {
+    return typeof to === "string" ? to : createPath(to);
+  }
+  return getUrlBasedHistory(
+    createBrowserLocation,
+    createBrowserHref,
+    null,
+    options
+  );
+}
+function invariant(value, message) {
+  if (value === false || value === null || typeof value === "undefined") {
+    throw new Error(message);
+  }
+}
+function warning(cond, message) {
+  if (!cond) {
+    if (typeof console !== "undefined") console.warn(message);
+    try {
+      throw new Error(message);
+    } catch (e) {
+    }
+  }
+}
+function createKey() {
+  return Math.random().toString(36).substring(2, 10);
+}
+function getHistoryState(location, index) {
+  return {
+    usr: location.state,
+    key: location.key,
+    idx: index
+  };
+}
+function createLocation(current, to, state = null, key) {
+  let location = {
+    pathname: typeof current === "string" ? current : current.pathname,
+    search: "",
+    hash: "",
+    ...typeof to === "string" ? parsePath(to) : to,
+    state,
+    // TODO: This could be cleaned up.  push/replace should probably just take
+    // full Locations now and avoid the need to run through this flow at all
+    // But that's a pretty big refactor to the current test suite so going to
+    // keep as is for the time being and just let any incoming keys take precedence
+    key: to && to.key || key || createKey()
+  };
+  return location;
+}
+function createPath({
+  pathname = "/",
+  search = "",
+  hash = ""
+}) {
+  if (search && search !== "?")
+    pathname += search.charAt(0) === "?" ? search : "?" + search;
+  if (hash && hash !== "#")
+    pathname += hash.charAt(0) === "#" ? hash : "#" + hash;
+  return pathname;
+}
+function parsePath(path) {
+  let parsedPath = {};
+  if (path) {
+    let hashIndex = path.indexOf("#");
+    if (hashIndex >= 0) {
+      parsedPath.hash = path.substring(hashIndex);
+      path = path.substring(0, hashIndex);
+    }
+    let searchIndex = path.indexOf("?");
+    if (searchIndex >= 0) {
+      parsedPath.search = path.substring(searchIndex);
+      path = path.substring(0, searchIndex);
+    }
+    if (path) {
+      parsedPath.pathname = path;
+    }
+  }
+  return parsedPath;
+}
+function getUrlBasedHistory(getLocation, createHref2, validateLocation, options = {}) {
+  let { window: window2 = document.defaultView, v5Compat = false } = options;
+  let globalHistory = window2.history;
+  let action = "POP";
+  let listener = null;
+  let index = getIndex();
+  if (index == null) {
+    index = 0;
+    globalHistory.replaceState({ ...globalHistory.state, idx: index }, "");
+  }
+  function getIndex() {
+    let state = globalHistory.state || { idx: null };
+    return state.idx;
+  }
+  function handlePop() {
+    action = "POP";
+    let nextIndex = getIndex();
+    let delta = nextIndex == null ? null : nextIndex - index;
+    index = nextIndex;
+    if (listener) {
+      listener({ action, location: history.location, delta });
+    }
+  }
+  function push(to, state) {
+    action = "PUSH";
+    let location = createLocation(history.location, to, state);
+    index = getIndex() + 1;
+    let historyState = getHistoryState(location, index);
+    let url = history.createHref(location);
+    try {
+      globalHistory.pushState(historyState, "", url);
+    } catch (error2) {
+      if (error2 instanceof DOMException && error2.name === "DataCloneError") {
+        throw error2;
+      }
+      window2.location.assign(url);
+    }
+    if (v5Compat && listener) {
+      listener({ action, location: history.location, delta: 1 });
+    }
+  }
+  function replace2(to, state) {
+    action = "REPLACE";
+    let location = createLocation(history.location, to, state);
+    index = getIndex();
+    let historyState = getHistoryState(location, index);
+    let url = history.createHref(location);
+    globalHistory.replaceState(historyState, "", url);
+    if (v5Compat && listener) {
+      listener({ action, location: history.location, delta: 0 });
+    }
+  }
+  function createURL(to) {
+    let base = window2.location.origin !== "null" ? window2.location.origin : window2.location.href;
+    let href2 = typeof to === "string" ? to : createPath(to);
+    href2 = href2.replace(/ $/, "%20");
+    invariant(
+      base,
+      `No window.location.(origin|href) available to create URL for href: ${href2}`
+    );
+    return new URL(href2, base);
+  }
+  let history = {
+    get action() {
+      return action;
+    },
+    get location() {
+      return getLocation(window2, globalHistory);
+    },
+    listen(fn) {
+      if (listener) {
+        throw new Error("A history only accepts one active listener");
+      }
+      window2.addEventListener(PopStateEventType, handlePop);
+      listener = fn;
+      return () => {
+        window2.removeEventListener(PopStateEventType, handlePop);
+        listener = null;
+      };
+    },
+    createHref(to) {
+      return createHref2(window2, to);
+    },
+    createURL,
+    encodeLocation(to) {
+      let url = createURL(to);
+      return {
+        pathname: url.pathname,
+        search: url.search,
+        hash: url.hash
+      };
+    },
+    push,
+    replace: replace2,
+    go(n) {
+      return globalHistory.go(n);
+    }
+  };
+  return history;
+}
+function matchRoutes(routes, locationArg, basename = "/") {
+  return matchRoutesImpl(routes, locationArg, basename, false);
+}
+function matchRoutesImpl(routes, locationArg, basename, allowPartial) {
+  let location = typeof locationArg === "string" ? parsePath(locationArg) : locationArg;
+  let pathname = stripBasename(location.pathname || "/", basename);
+  if (pathname == null) {
+    return null;
+  }
+  let branches = flattenRoutes(routes);
+  rankRouteBranches(branches);
+  let matches = null;
+  for (let i = 0; matches == null && i < branches.length; ++i) {
+    let decoded = decodePath(pathname);
+    matches = matchRouteBranch(
+      branches[i],
+      decoded,
+      allowPartial
+    );
+  }
+  return matches;
+}
+function flattenRoutes(routes, branches = [], parentsMeta = [], parentPath = "") {
+  let flattenRoute = (route, index, relativePath) => {
+    let meta = {
+      relativePath: relativePath === void 0 ? route.path || "" : relativePath,
+      caseSensitive: route.caseSensitive === true,
+      childrenIndex: index,
+      route
+    };
+    if (meta.relativePath.startsWith("/")) {
+      invariant(
+        meta.relativePath.startsWith(parentPath),
+        `Absolute route path "${meta.relativePath}" nested under path "${parentPath}" is not valid. An absolute child route path must start with the combined path of all its parent routes.`
+      );
+      meta.relativePath = meta.relativePath.slice(parentPath.length);
+    }
+    let path = joinPaths([parentPath, meta.relativePath]);
+    let routesMeta = parentsMeta.concat(meta);
+    if (route.children && route.children.length > 0) {
+      invariant(
+        // Our types know better, but runtime JS may not!
+        // @ts-expect-error
+        route.index !== true,
+        `Index routes must not have child routes. Please remove all child routes from route path "${path}".`
+      );
+      flattenRoutes(route.children, branches, routesMeta, path);
+    }
+    if (route.path == null && !route.index) {
+      return;
+    }
+    branches.push({
+      path,
+      score: computeScore(path, route.index),
+      routesMeta
+    });
+  };
+  routes.forEach((route, index) => {
+    var _a;
+    if (route.path === "" || !((_a = route.path) == null ? void 0 : _a.includes("?"))) {
+      flattenRoute(route, index);
+    } else {
+      for (let exploded of explodeOptionalSegments(route.path)) {
+        flattenRoute(route, index, exploded);
+      }
+    }
+  });
+  return branches;
+}
+function explodeOptionalSegments(path) {
+  let segments = path.split("/");
+  if (segments.length === 0) return [];
+  let [first, ...rest] = segments;
+  let isOptional = first.endsWith("?");
+  let required = first.replace(/\?$/, "");
+  if (rest.length === 0) {
+    return isOptional ? [required, ""] : [required];
+  }
+  let restExploded = explodeOptionalSegments(rest.join("/"));
+  let result = [];
+  result.push(
+    ...restExploded.map(
+      (subpath) => subpath === "" ? required : [required, subpath].join("/")
+    )
+  );
+  if (isOptional) {
+    result.push(...restExploded);
+  }
+  return result.map(
+    (exploded) => path.startsWith("/") && exploded === "" ? "/" : exploded
+  );
+}
+function rankRouteBranches(branches) {
+  branches.sort(
+    (a, b) => a.score !== b.score ? b.score - a.score : compareIndexes(
+      a.routesMeta.map((meta) => meta.childrenIndex),
+      b.routesMeta.map((meta) => meta.childrenIndex)
+    )
+  );
+}
+var paramRe = /^:[\w-]+$/;
+var dynamicSegmentValue = 3;
+var indexRouteValue = 2;
+var emptySegmentValue = 1;
+var staticSegmentValue = 10;
+var splatPenalty = -2;
+var isSplat = (s) => s === "*";
+function computeScore(path, index) {
+  let segments = path.split("/");
+  let initialScore = segments.length;
+  if (segments.some(isSplat)) {
+    initialScore += splatPenalty;
+  }
+  if (index) {
+    initialScore += indexRouteValue;
+  }
+  return segments.filter((s) => !isSplat(s)).reduce(
+    (score, segment) => score + (paramRe.test(segment) ? dynamicSegmentValue : segment === "" ? emptySegmentValue : staticSegmentValue),
+    initialScore
+  );
+}
+function compareIndexes(a, b) {
+  let siblings = a.length === b.length && a.slice(0, -1).every((n, i) => n === b[i]);
+  return siblings ? (
+    // If two routes are siblings, we should try to match the earlier sibling
+    // first. This allows people to have fine-grained control over the matching
+    // behavior by simply putting routes with identical paths in the order they
+    // want them tried.
+    a[a.length - 1] - b[b.length - 1]
+  ) : (
+    // Otherwise, it doesn't really make sense to rank non-siblings by index,
+    // so they sort equally.
+    0
+  );
+}
+function matchRouteBranch(branch, pathname, allowPartial = false) {
+  let { routesMeta } = branch;
+  let matchedParams = {};
+  let matchedPathname = "/";
+  let matches = [];
+  for (let i = 0; i < routesMeta.length; ++i) {
+    let meta = routesMeta[i];
+    let end = i === routesMeta.length - 1;
+    let remainingPathname = matchedPathname === "/" ? pathname : pathname.slice(matchedPathname.length) || "/";
+    let match = matchPath(
+      { path: meta.relativePath, caseSensitive: meta.caseSensitive, end },
+      remainingPathname
+    );
+    let route = meta.route;
+    if (!match && end && allowPartial && !routesMeta[routesMeta.length - 1].route.index) {
+      match = matchPath(
+        {
+          path: meta.relativePath,
+          caseSensitive: meta.caseSensitive,
+          end: false
+        },
+        remainingPathname
+      );
+    }
+    if (!match) {
+      return null;
+    }
+    Object.assign(matchedParams, match.params);
+    matches.push({
+      // TODO: Can this as be avoided?
+      params: matchedParams,
+      pathname: joinPaths([matchedPathname, match.pathname]),
+      pathnameBase: normalizePathname(
+        joinPaths([matchedPathname, match.pathnameBase])
+      ),
+      route
+    });
+    if (match.pathnameBase !== "/") {
+      matchedPathname = joinPaths([matchedPathname, match.pathnameBase]);
+    }
+  }
+  return matches;
+}
+function matchPath(pattern, pathname) {
+  if (typeof pattern === "string") {
+    pattern = { path: pattern, caseSensitive: false, end: true };
+  }
+  let [matcher, compiledParams] = compilePath(
+    pattern.path,
+    pattern.caseSensitive,
+    pattern.end
+  );
+  let match = pathname.match(matcher);
+  if (!match) return null;
+  let matchedPathname = match[0];
+  let pathnameBase = matchedPathname.replace(/(.)\/+$/, "$1");
+  let captureGroups = match.slice(1);
+  let params = compiledParams.reduce(
+    (memo2, { paramName, isOptional }, index) => {
+      if (paramName === "*") {
+        let splatValue = captureGroups[index] || "";
+        pathnameBase = matchedPathname.slice(0, matchedPathname.length - splatValue.length).replace(/(.)\/+$/, "$1");
+      }
+      const value = captureGroups[index];
+      if (isOptional && !value) {
+        memo2[paramName] = void 0;
+      } else {
+        memo2[paramName] = (value || "").replace(/%2F/g, "/");
+      }
+      return memo2;
+    },
+    {}
+  );
+  return {
+    params,
+    pathname: matchedPathname,
+    pathnameBase,
+    pattern
+  };
+}
+function compilePath(path, caseSensitive = false, end = true) {
+  warning(
+    path === "*" || !path.endsWith("*") || path.endsWith("/*"),
+    `Route path "${path}" will be treated as if it were "${path.replace(/\*$/, "/*")}" because the \`*\` character must always follow a \`/\` in the pattern. To get rid of this warning, please change the route path to "${path.replace(/\*$/, "/*")}".`
+  );
+  let params = [];
+  let regexpSource = "^" + path.replace(/\/*\*?$/, "").replace(/^\/*/, "/").replace(/[\\.*+^${}|()[\]]/g, "\\$&").replace(
+    /\/:([\w-]+)(\?)?/g,
+    (_, paramName, isOptional) => {
+      params.push({ paramName, isOptional: isOptional != null });
+      return isOptional ? "/?([^\\/]+)?" : "/([^\\/]+)";
+    }
+  );
+  if (path.endsWith("*")) {
+    params.push({ paramName: "*" });
+    regexpSource += path === "*" || path === "/*" ? "(.*)$" : "(?:\\/(.+)|\\/*)$";
+  } else if (end) {
+    regexpSource += "\\/*$";
+  } else if (path !== "" && path !== "/") {
+    regexpSource += "(?:(?=\\/|$))";
+  } else ;
+  let matcher = new RegExp(regexpSource, caseSensitive ? void 0 : "i");
+  return [matcher, params];
+}
+function decodePath(value) {
+  try {
+    return value.split("/").map((v) => decodeURIComponent(v).replace(/\//g, "%2F")).join("/");
+  } catch (error2) {
+    warning(
+      false,
+      `The URL path "${value}" could not be decoded because it is a malformed URL segment. This is probably due to a bad percent encoding (${error2}).`
+    );
+    return value;
+  }
+}
+function stripBasename(pathname, basename) {
+  if (basename === "/") return pathname;
+  if (!pathname.toLowerCase().startsWith(basename.toLowerCase())) {
+    return null;
+  }
+  let startIndex = basename.endsWith("/") ? basename.length - 1 : basename.length;
+  let nextChar = pathname.charAt(startIndex);
+  if (nextChar && nextChar !== "/") {
+    return null;
+  }
+  return pathname.slice(startIndex) || "/";
+}
+function resolvePath(to, fromPathname = "/") {
+  let {
+    pathname: toPathname,
+    search = "",
+    hash = ""
+  } = typeof to === "string" ? parsePath(to) : to;
+  let pathname = toPathname ? toPathname.startsWith("/") ? toPathname : resolvePathname(toPathname, fromPathname) : fromPathname;
+  return {
+    pathname,
+    search: normalizeSearch(search),
+    hash: normalizeHash(hash)
+  };
+}
+function resolvePathname(relativePath, fromPathname) {
+  let segments = fromPathname.replace(/\/+$/, "").split("/");
+  let relativeSegments = relativePath.split("/");
+  relativeSegments.forEach((segment) => {
+    if (segment === "..") {
+      if (segments.length > 1) segments.pop();
+    } else if (segment !== ".") {
+      segments.push(segment);
+    }
+  });
+  return segments.length > 1 ? segments.join("/") : "/";
+}
+function getInvalidPathError(char, field, dest, path) {
+  return `Cannot include a '${char}' character in a manually specified \`to.${field}\` field [${JSON.stringify(
+    path
+  )}].  Please separate it out to the \`to.${dest}\` field. Alternatively you may provide the full path as a string in <Link to="..."> and the router will parse it for you.`;
+}
+function getPathContributingMatches(matches) {
+  return matches.filter(
+    (match, index) => index === 0 || match.route.path && match.route.path.length > 0
+  );
+}
+function getResolveToMatches(matches) {
+  let pathMatches = getPathContributingMatches(matches);
+  return pathMatches.map(
+    (match, idx) => idx === pathMatches.length - 1 ? match.pathname : match.pathnameBase
+  );
+}
+function resolveTo(toArg, routePathnames, locationPathname, isPathRelative = false) {
+  let to;
+  if (typeof toArg === "string") {
+    to = parsePath(toArg);
+  } else {
+    to = { ...toArg };
+    invariant(
+      !to.pathname || !to.pathname.includes("?"),
+      getInvalidPathError("?", "pathname", "search", to)
+    );
+    invariant(
+      !to.pathname || !to.pathname.includes("#"),
+      getInvalidPathError("#", "pathname", "hash", to)
+    );
+    invariant(
+      !to.search || !to.search.includes("#"),
+      getInvalidPathError("#", "search", "hash", to)
+    );
+  }
+  let isEmptyPath = toArg === "" || to.pathname === "";
+  let toPathname = isEmptyPath ? "/" : to.pathname;
+  let from;
+  if (toPathname == null) {
+    from = locationPathname;
+  } else {
+    let routePathnameIndex = routePathnames.length - 1;
+    if (!isPathRelative && toPathname.startsWith("..")) {
+      let toSegments = toPathname.split("/");
+      while (toSegments[0] === "..") {
+        toSegments.shift();
+        routePathnameIndex -= 1;
+      }
+      to.pathname = toSegments.join("/");
+    }
+    from = routePathnameIndex >= 0 ? routePathnames[routePathnameIndex] : "/";
+  }
+  let path = resolvePath(to, from);
+  let hasExplicitTrailingSlash = toPathname && toPathname !== "/" && toPathname.endsWith("/");
+  let hasCurrentTrailingSlash = (isEmptyPath || toPathname === ".") && locationPathname.endsWith("/");
+  if (!path.pathname.endsWith("/") && (hasExplicitTrailingSlash || hasCurrentTrailingSlash)) {
+    path.pathname += "/";
+  }
+  return path;
+}
+var joinPaths = (paths) => paths.join("/").replace(/\/\/+/g, "/");
+var normalizePathname = (pathname) => pathname.replace(/\/+$/, "").replace(/^\/*/, "/");
+var normalizeSearch = (search) => !search || search === "?" ? "" : search.startsWith("?") ? search : "?" + search;
+var normalizeHash = (hash) => !hash || hash === "#" ? "" : hash.startsWith("#") ? hash : "#" + hash;
+function isRouteErrorResponse(error2) {
+  return error2 != null && typeof error2.status === "number" && typeof error2.statusText === "string" && typeof error2.internal === "boolean" && "data" in error2;
+}
+var validMutationMethodsArr = [
+  "POST",
+  "PUT",
+  "PATCH",
+  "DELETE"
+];
+new Set(
+  validMutationMethodsArr
+);
+var validRequestMethodsArr = [
+  "GET",
+  ...validMutationMethodsArr
+];
+new Set(validRequestMethodsArr);
+var DataRouterContext = reactExports.createContext(null);
+DataRouterContext.displayName = "DataRouter";
+var DataRouterStateContext = reactExports.createContext(null);
+DataRouterStateContext.displayName = "DataRouterState";
+var ViewTransitionContext = reactExports.createContext({
+  isTransitioning: false
+});
+ViewTransitionContext.displayName = "ViewTransition";
+var FetchersContext = reactExports.createContext(
+  /* @__PURE__ */ new Map()
+);
+FetchersContext.displayName = "Fetchers";
+var AwaitContext = reactExports.createContext(null);
+AwaitContext.displayName = "Await";
+var NavigationContext = reactExports.createContext(
+  null
+);
+NavigationContext.displayName = "Navigation";
+var LocationContext = reactExports.createContext(
+  null
+);
+LocationContext.displayName = "Location";
+var RouteContext = reactExports.createContext({
+  outlet: null,
+  matches: [],
+  isDataRoute: false
+});
+RouteContext.displayName = "Route";
+var RouteErrorContext = reactExports.createContext(null);
+RouteErrorContext.displayName = "RouteError";
+function useHref(to, { relative } = {}) {
+  invariant(
+    useInRouterContext(),
+    // TODO: This error is probably because they somehow have 2 versions of the
+    // router loaded. We can help them understand how to avoid that.
+    `useHref() may be used only in the context of a <Router> component.`
+  );
+  let { basename, navigator: navigator2 } = reactExports.useContext(NavigationContext);
+  let { hash, pathname, search } = useResolvedPath(to, { relative });
+  let joinedPathname = pathname;
+  if (basename !== "/") {
+    joinedPathname = pathname === "/" ? basename : joinPaths([basename, pathname]);
+  }
+  return navigator2.createHref({ pathname: joinedPathname, search, hash });
+}
+function useInRouterContext() {
+  return reactExports.useContext(LocationContext) != null;
+}
+function useLocation() {
+  invariant(
+    useInRouterContext(),
+    // TODO: This error is probably because they somehow have 2 versions of the
+    // router loaded. We can help them understand how to avoid that.
+    `useLocation() may be used only in the context of a <Router> component.`
+  );
+  return reactExports.useContext(LocationContext).location;
+}
+var navigateEffectWarning = `You should call navigate() in a React.useEffect(), not when your component is first rendered.`;
+function useIsomorphicLayoutEffect(cb) {
+  let isStatic = reactExports.useContext(NavigationContext).static;
+  if (!isStatic) {
+    reactExports.useLayoutEffect(cb);
+  }
+}
+function useNavigate() {
+  let { isDataRoute } = reactExports.useContext(RouteContext);
+  return isDataRoute ? useNavigateStable() : useNavigateUnstable();
+}
+function useNavigateUnstable() {
+  invariant(
+    useInRouterContext(),
+    // TODO: This error is probably because they somehow have 2 versions of the
+    // router loaded. We can help them understand how to avoid that.
+    `useNavigate() may be used only in the context of a <Router> component.`
+  );
+  let dataRouterContext = reactExports.useContext(DataRouterContext);
+  let { basename, navigator: navigator2 } = reactExports.useContext(NavigationContext);
+  let { matches } = reactExports.useContext(RouteContext);
+  let { pathname: locationPathname } = useLocation();
+  let routePathnamesJson = JSON.stringify(getResolveToMatches(matches));
+  let activeRef = reactExports.useRef(false);
+  useIsomorphicLayoutEffect(() => {
+    activeRef.current = true;
+  });
+  let navigate = reactExports.useCallback(
+    (to, options = {}) => {
+      warning(activeRef.current, navigateEffectWarning);
+      if (!activeRef.current) return;
+      if (typeof to === "number") {
+        navigator2.go(to);
+        return;
+      }
+      let path = resolveTo(
+        to,
+        JSON.parse(routePathnamesJson),
+        locationPathname,
+        options.relative === "path"
+      );
+      if (dataRouterContext == null && basename !== "/") {
+        path.pathname = path.pathname === "/" ? basename : joinPaths([basename, path.pathname]);
+      }
+      (!!options.replace ? navigator2.replace : navigator2.push)(
+        path,
+        options.state,
+        options
+      );
+    },
+    [
+      basename,
+      navigator2,
+      routePathnamesJson,
+      locationPathname,
+      dataRouterContext
+    ]
+  );
+  return navigate;
+}
+reactExports.createContext(null);
+function useResolvedPath(to, { relative } = {}) {
+  let { matches } = reactExports.useContext(RouteContext);
+  let { pathname: locationPathname } = useLocation();
+  let routePathnamesJson = JSON.stringify(getResolveToMatches(matches));
+  return reactExports.useMemo(
+    () => resolveTo(
+      to,
+      JSON.parse(routePathnamesJson),
+      locationPathname,
+      relative === "path"
+    ),
+    [to, routePathnamesJson, locationPathname, relative]
+  );
+}
+function useRoutes(routes, locationArg) {
+  return useRoutesImpl(routes, locationArg);
+}
+function useRoutesImpl(routes, locationArg, dataRouterState, future) {
+  var _a;
+  invariant(
+    useInRouterContext(),
+    // TODO: This error is probably because they somehow have 2 versions of the
+    // router loaded. We can help them understand how to avoid that.
+    `useRoutes() may be used only in the context of a <Router> component.`
+  );
+  let { navigator: navigator2, static: isStatic } = reactExports.useContext(NavigationContext);
+  let { matches: parentMatches } = reactExports.useContext(RouteContext);
+  let routeMatch = parentMatches[parentMatches.length - 1];
+  let parentParams = routeMatch ? routeMatch.params : {};
+  let parentPathname = routeMatch ? routeMatch.pathname : "/";
+  let parentPathnameBase = routeMatch ? routeMatch.pathnameBase : "/";
+  let parentRoute = routeMatch && routeMatch.route;
+  {
+    let parentPath = parentRoute && parentRoute.path || "";
+    warningOnce(
+      parentPathname,
+      !parentRoute || parentPath.endsWith("*") || parentPath.endsWith("*?"),
+      `You rendered descendant <Routes> (or called \`useRoutes()\`) at "${parentPathname}" (under <Route path="${parentPath}">) but the parent route path has no trailing "*". This means if you navigate deeper, the parent won't match anymore and therefore the child routes will never render.
+
+Please change the parent <Route path="${parentPath}"> to <Route path="${parentPath === "/" ? "*" : `${parentPath}/*`}">.`
+    );
+  }
+  let locationFromContext = useLocation();
+  let location;
+  if (locationArg) {
+    let parsedLocationArg = typeof locationArg === "string" ? parsePath(locationArg) : locationArg;
+    invariant(
+      parentPathnameBase === "/" || ((_a = parsedLocationArg.pathname) == null ? void 0 : _a.startsWith(parentPathnameBase)),
+      `When overriding the location using \`<Routes location>\` or \`useRoutes(routes, location)\`, the location pathname must begin with the portion of the URL pathname that was matched by all parent routes. The current pathname base is "${parentPathnameBase}" but pathname "${parsedLocationArg.pathname}" was given in the \`location\` prop.`
+    );
+    location = parsedLocationArg;
+  } else {
+    location = locationFromContext;
+  }
+  let pathname = location.pathname || "/";
+  let remainingPathname = pathname;
+  if (parentPathnameBase !== "/") {
+    let parentSegments = parentPathnameBase.replace(/^\//, "").split("/");
+    let segments = pathname.replace(/^\//, "").split("/");
+    remainingPathname = "/" + segments.slice(parentSegments.length).join("/");
+  }
+  let matches = !isStatic && dataRouterState && dataRouterState.matches && dataRouterState.matches.length > 0 ? dataRouterState.matches : matchRoutes(routes, { pathname: remainingPathname });
+  {
+    warning(
+      parentRoute || matches != null,
+      `No routes matched location "${location.pathname}${location.search}${location.hash}" `
+    );
+    warning(
+      matches == null || matches[matches.length - 1].route.element !== void 0 || matches[matches.length - 1].route.Component !== void 0 || matches[matches.length - 1].route.lazy !== void 0,
+      `Matched leaf route at location "${location.pathname}${location.search}${location.hash}" does not have an element or Component. This means it will render an <Outlet /> with a null value by default resulting in an "empty" page.`
+    );
+  }
+  let renderedMatches = _renderMatches(
+    matches && matches.map(
+      (match) => Object.assign({}, match, {
+        params: Object.assign({}, parentParams, match.params),
+        pathname: joinPaths([
+          parentPathnameBase,
+          // Re-encode pathnames that were decoded inside matchRoutes
+          navigator2.encodeLocation ? navigator2.encodeLocation(match.pathname).pathname : match.pathname
+        ]),
+        pathnameBase: match.pathnameBase === "/" ? parentPathnameBase : joinPaths([
+          parentPathnameBase,
+          // Re-encode pathnames that were decoded inside matchRoutes
+          navigator2.encodeLocation ? navigator2.encodeLocation(match.pathnameBase).pathname : match.pathnameBase
+        ])
+      })
+    ),
+    parentMatches,
+    dataRouterState,
+    future
+  );
+  if (locationArg && renderedMatches) {
+    return /* @__PURE__ */ reactExports.createElement(
+      LocationContext.Provider,
+      {
+        value: {
+          location: {
+            pathname: "/",
+            search: "",
+            hash: "",
+            state: null,
+            key: "default",
+            ...location
+          },
+          navigationType: "POP"
+          /* Pop */
+        }
+      },
+      renderedMatches
+    );
+  }
+  return renderedMatches;
+}
+function DefaultErrorComponent() {
+  let error2 = useRouteError();
+  let message = isRouteErrorResponse(error2) ? `${error2.status} ${error2.statusText}` : error2 instanceof Error ? error2.message : JSON.stringify(error2);
+  let stack = error2 instanceof Error ? error2.stack : null;
+  let lightgrey = "rgba(200,200,200, 0.5)";
+  let preStyles = { padding: "0.5rem", backgroundColor: lightgrey };
+  let codeStyles = { padding: "2px 4px", backgroundColor: lightgrey };
+  let devInfo = null;
+  {
+    console.error(
+      "Error handled by React Router default ErrorBoundary:",
+      error2
+    );
+    devInfo = /* @__PURE__ */ reactExports.createElement(reactExports.Fragment, null, /* @__PURE__ */ reactExports.createElement("p", null, "💿 Hey developer 👋"), /* @__PURE__ */ reactExports.createElement("p", null, "You can provide a way better UX than this when your app throws errors by providing your own ", /* @__PURE__ */ reactExports.createElement("code", { style: codeStyles }, "ErrorBoundary"), " or", " ", /* @__PURE__ */ reactExports.createElement("code", { style: codeStyles }, "errorElement"), " prop on your route."));
+  }
+  return /* @__PURE__ */ reactExports.createElement(reactExports.Fragment, null, /* @__PURE__ */ reactExports.createElement("h2", null, "Unexpected Application Error!"), /* @__PURE__ */ reactExports.createElement("h3", { style: { fontStyle: "italic" } }, message), stack ? /* @__PURE__ */ reactExports.createElement("pre", { style: preStyles }, stack) : null, devInfo);
+}
+var defaultErrorElement = /* @__PURE__ */ reactExports.createElement(DefaultErrorComponent, null);
+var RenderErrorBoundary = class extends reactExports.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      location: props.location,
+      revalidation: props.revalidation,
+      error: props.error
+    };
+  }
+  static getDerivedStateFromError(error2) {
+    return { error: error2 };
+  }
+  static getDerivedStateFromProps(props, state) {
+    if (state.location !== props.location || state.revalidation !== "idle" && props.revalidation === "idle") {
+      return {
+        error: props.error,
+        location: props.location,
+        revalidation: props.revalidation
+      };
+    }
+    return {
+      error: props.error !== void 0 ? props.error : state.error,
+      location: state.location,
+      revalidation: props.revalidation || state.revalidation
+    };
+  }
+  componentDidCatch(error2, errorInfo) {
+    console.error(
+      "React Router caught the following error during render",
+      error2,
+      errorInfo
+    );
+  }
+  render() {
+    return this.state.error !== void 0 ? /* @__PURE__ */ reactExports.createElement(RouteContext.Provider, { value: this.props.routeContext }, /* @__PURE__ */ reactExports.createElement(
+      RouteErrorContext.Provider,
+      {
+        value: this.state.error,
+        children: this.props.component
+      }
+    )) : this.props.children;
+  }
 };
-const form = "_form_4axrq_1";
-const styles$8 = {
-  form
+function RenderedRoute({ routeContext, match, children }) {
+  let dataRouterContext = reactExports.useContext(DataRouterContext);
+  if (dataRouterContext && dataRouterContext.static && dataRouterContext.staticContext && (match.route.errorElement || match.route.ErrorBoundary)) {
+    dataRouterContext.staticContext._deepestRenderedBoundaryId = match.route.id;
+  }
+  return /* @__PURE__ */ reactExports.createElement(RouteContext.Provider, { value: routeContext }, children);
+}
+function _renderMatches(matches, parentMatches = [], dataRouterState = null, future = null) {
+  if (matches == null) {
+    if (!dataRouterState) {
+      return null;
+    }
+    if (dataRouterState.errors) {
+      matches = dataRouterState.matches;
+    } else if (parentMatches.length === 0 && !dataRouterState.initialized && dataRouterState.matches.length > 0) {
+      matches = dataRouterState.matches;
+    } else {
+      return null;
+    }
+  }
+  let renderedMatches = matches;
+  let errors = dataRouterState == null ? void 0 : dataRouterState.errors;
+  if (errors != null) {
+    let errorIndex = renderedMatches.findIndex(
+      (m) => m.route.id && (errors == null ? void 0 : errors[m.route.id]) !== void 0
+    );
+    invariant(
+      errorIndex >= 0,
+      `Could not find a matching route for errors on route IDs: ${Object.keys(
+        errors
+      ).join(",")}`
+    );
+    renderedMatches = renderedMatches.slice(
+      0,
+      Math.min(renderedMatches.length, errorIndex + 1)
+    );
+  }
+  let renderFallback = false;
+  let fallbackIndex = -1;
+  if (dataRouterState) {
+    for (let i = 0; i < renderedMatches.length; i++) {
+      let match = renderedMatches[i];
+      if (match.route.HydrateFallback || match.route.hydrateFallbackElement) {
+        fallbackIndex = i;
+      }
+      if (match.route.id) {
+        let { loaderData, errors: errors2 } = dataRouterState;
+        let needsToRunLoader = match.route.loader && !loaderData.hasOwnProperty(match.route.id) && (!errors2 || errors2[match.route.id] === void 0);
+        if (match.route.lazy || needsToRunLoader) {
+          renderFallback = true;
+          if (fallbackIndex >= 0) {
+            renderedMatches = renderedMatches.slice(0, fallbackIndex + 1);
+          } else {
+            renderedMatches = [renderedMatches[0]];
+          }
+          break;
+        }
+      }
+    }
+  }
+  return renderedMatches.reduceRight((outlet, match, index) => {
+    let error2;
+    let shouldRenderHydrateFallback = false;
+    let errorElement = null;
+    let hydrateFallbackElement = null;
+    if (dataRouterState) {
+      error2 = errors && match.route.id ? errors[match.route.id] : void 0;
+      errorElement = match.route.errorElement || defaultErrorElement;
+      if (renderFallback) {
+        if (fallbackIndex < 0 && index === 0) {
+          warningOnce(
+            "route-fallback",
+            false,
+            "No `HydrateFallback` element provided to render during initial hydration"
+          );
+          shouldRenderHydrateFallback = true;
+          hydrateFallbackElement = null;
+        } else if (fallbackIndex === index) {
+          shouldRenderHydrateFallback = true;
+          hydrateFallbackElement = match.route.hydrateFallbackElement || null;
+        }
+      }
+    }
+    let matches2 = parentMatches.concat(renderedMatches.slice(0, index + 1));
+    let getChildren = () => {
+      let children;
+      if (error2) {
+        children = errorElement;
+      } else if (shouldRenderHydrateFallback) {
+        children = hydrateFallbackElement;
+      } else if (match.route.Component) {
+        children = /* @__PURE__ */ reactExports.createElement(match.route.Component, null);
+      } else if (match.route.element) {
+        children = match.route.element;
+      } else {
+        children = outlet;
+      }
+      return /* @__PURE__ */ reactExports.createElement(
+        RenderedRoute,
+        {
+          match,
+          routeContext: {
+            outlet,
+            matches: matches2,
+            isDataRoute: dataRouterState != null
+          },
+          children
+        }
+      );
+    };
+    return dataRouterState && (match.route.ErrorBoundary || match.route.errorElement || index === 0) ? /* @__PURE__ */ reactExports.createElement(
+      RenderErrorBoundary,
+      {
+        location: dataRouterState.location,
+        revalidation: dataRouterState.revalidation,
+        component: errorElement,
+        error: error2,
+        children: getChildren(),
+        routeContext: { outlet: null, matches: matches2, isDataRoute: true }
+      }
+    ) : getChildren();
+  }, null);
+}
+function getDataRouterConsoleError(hookName) {
+  return `${hookName} must be used within a data router.  See https://reactrouter.com/en/main/routers/picking-a-router.`;
+}
+function useDataRouterContext(hookName) {
+  let ctx = reactExports.useContext(DataRouterContext);
+  invariant(ctx, getDataRouterConsoleError(hookName));
+  return ctx;
+}
+function useDataRouterState(hookName) {
+  let state = reactExports.useContext(DataRouterStateContext);
+  invariant(state, getDataRouterConsoleError(hookName));
+  return state;
+}
+function useRouteContext(hookName) {
+  let route = reactExports.useContext(RouteContext);
+  invariant(route, getDataRouterConsoleError(hookName));
+  return route;
+}
+function useCurrentRouteId(hookName) {
+  let route = useRouteContext(hookName);
+  let thisRoute = route.matches[route.matches.length - 1];
+  invariant(
+    thisRoute.route.id,
+    `${hookName} can only be used on routes that contain a unique "id"`
+  );
+  return thisRoute.route.id;
+}
+function useRouteId() {
+  return useCurrentRouteId(
+    "useRouteId"
+    /* UseRouteId */
+  );
+}
+function useRouteError() {
+  var _a;
+  let error2 = reactExports.useContext(RouteErrorContext);
+  let state = useDataRouterState(
+    "useRouteError"
+    /* UseRouteError */
+  );
+  let routeId = useCurrentRouteId(
+    "useRouteError"
+    /* UseRouteError */
+  );
+  if (error2 !== void 0) {
+    return error2;
+  }
+  return (_a = state.errors) == null ? void 0 : _a[routeId];
+}
+function useNavigateStable() {
+  let { router } = useDataRouterContext(
+    "useNavigate"
+    /* UseNavigateStable */
+  );
+  let id = useCurrentRouteId(
+    "useNavigate"
+    /* UseNavigateStable */
+  );
+  let activeRef = reactExports.useRef(false);
+  useIsomorphicLayoutEffect(() => {
+    activeRef.current = true;
+  });
+  let navigate = reactExports.useCallback(
+    async (to, options = {}) => {
+      warning(activeRef.current, navigateEffectWarning);
+      if (!activeRef.current) return;
+      if (typeof to === "number") {
+        router.navigate(to);
+      } else {
+        await router.navigate(to, { fromRouteId: id, ...options });
+      }
+    },
+    [router, id]
+  );
+  return navigate;
+}
+var alreadyWarned = {};
+function warningOnce(key, cond, message) {
+  if (!cond && !alreadyWarned[key]) {
+    alreadyWarned[key] = true;
+    warning(false, message);
+  }
+}
+reactExports.memo(DataRoutes);
+function DataRoutes({
+  routes,
+  future,
+  state
+}) {
+  return useRoutesImpl(routes, void 0, state, future);
+}
+function Route(_props) {
+  invariant(
+    false,
+    `A <Route> is only ever to be used as the child of <Routes> element, never rendered directly. Please wrap your <Route> in a <Routes>.`
+  );
+}
+function Router({
+  basename: basenameProp = "/",
+  children = null,
+  location: locationProp,
+  navigationType = "POP",
+  navigator: navigator2,
+  static: staticProp = false
+}) {
+  invariant(
+    !useInRouterContext(),
+    `You cannot render a <Router> inside another <Router>. You should never have more than one in your app.`
+  );
+  let basename = basenameProp.replace(/^\/*/, "/");
+  let navigationContext = reactExports.useMemo(
+    () => ({
+      basename,
+      navigator: navigator2,
+      static: staticProp,
+      future: {}
+    }),
+    [basename, navigator2, staticProp]
+  );
+  if (typeof locationProp === "string") {
+    locationProp = parsePath(locationProp);
+  }
+  let {
+    pathname = "/",
+    search = "",
+    hash = "",
+    state = null,
+    key = "default"
+  } = locationProp;
+  let locationContext = reactExports.useMemo(() => {
+    let trailingPathname = stripBasename(pathname, basename);
+    if (trailingPathname == null) {
+      return null;
+    }
+    return {
+      location: {
+        pathname: trailingPathname,
+        search,
+        hash,
+        state,
+        key
+      },
+      navigationType
+    };
+  }, [basename, pathname, search, hash, state, key, navigationType]);
+  warning(
+    locationContext != null,
+    `<Router basename="${basename}"> is not able to match the URL "${pathname}${search}${hash}" because it does not start with the basename, so the <Router> won't render anything.`
+  );
+  if (locationContext == null) {
+    return null;
+  }
+  return /* @__PURE__ */ reactExports.createElement(NavigationContext.Provider, { value: navigationContext }, /* @__PURE__ */ reactExports.createElement(LocationContext.Provider, { children, value: locationContext }));
+}
+function Routes({
+  children,
+  location
+}) {
+  return useRoutes(createRoutesFromChildren(children), location);
+}
+function createRoutesFromChildren(children, parentPath = []) {
+  let routes = [];
+  reactExports.Children.forEach(children, (element, index) => {
+    if (!reactExports.isValidElement(element)) {
+      return;
+    }
+    let treePath = [...parentPath, index];
+    if (element.type === reactExports.Fragment) {
+      routes.push.apply(
+        routes,
+        createRoutesFromChildren(element.props.children, treePath)
+      );
+      return;
+    }
+    invariant(
+      element.type === Route,
+      `[${typeof element.type === "string" ? element.type : element.type.name}] is not a <Route> component. All component children of <Routes> must be a <Route> or <React.Fragment>`
+    );
+    invariant(
+      !element.props.index || !element.props.children,
+      "An index route cannot have child routes."
+    );
+    let route = {
+      id: element.props.id || treePath.join("-"),
+      caseSensitive: element.props.caseSensitive,
+      element: element.props.element,
+      Component: element.props.Component,
+      index: element.props.index,
+      path: element.props.path,
+      loader: element.props.loader,
+      action: element.props.action,
+      hydrateFallbackElement: element.props.hydrateFallbackElement,
+      HydrateFallback: element.props.HydrateFallback,
+      errorElement: element.props.errorElement,
+      ErrorBoundary: element.props.ErrorBoundary,
+      hasErrorBoundary: element.props.hasErrorBoundary === true || element.props.ErrorBoundary != null || element.props.errorElement != null,
+      shouldRevalidate: element.props.shouldRevalidate,
+      handle: element.props.handle,
+      lazy: element.props.lazy
+    };
+    if (element.props.children) {
+      route.children = createRoutesFromChildren(
+        element.props.children,
+        treePath
+      );
+    }
+    routes.push(route);
+  });
+  return routes;
+}
+var defaultMethod = "get";
+var defaultEncType = "application/x-www-form-urlencoded";
+function isHtmlElement(object) {
+  return object != null && typeof object.tagName === "string";
+}
+function isButtonElement(object) {
+  return isHtmlElement(object) && object.tagName.toLowerCase() === "button";
+}
+function isFormElement(object) {
+  return isHtmlElement(object) && object.tagName.toLowerCase() === "form";
+}
+function isInputElement(object) {
+  return isHtmlElement(object) && object.tagName.toLowerCase() === "input";
+}
+function isModifiedEvent(event) {
+  return !!(event.metaKey || event.altKey || event.ctrlKey || event.shiftKey);
+}
+function shouldProcessLinkClick(event, target) {
+  return event.button === 0 && // Ignore everything but left clicks
+  (!target || target === "_self") && // Let browser handle "target=_blank" etc.
+  !isModifiedEvent(event);
+}
+var _formDataSupportsSubmitter = null;
+function isFormDataSubmitterSupported() {
+  if (_formDataSupportsSubmitter === null) {
+    try {
+      new FormData(
+        document.createElement("form"),
+        // @ts-expect-error if FormData supports the submitter parameter, this will throw
+        0
+      );
+      _formDataSupportsSubmitter = false;
+    } catch (e) {
+      _formDataSupportsSubmitter = true;
+    }
+  }
+  return _formDataSupportsSubmitter;
+}
+var supportedFormEncTypes = /* @__PURE__ */ new Set([
+  "application/x-www-form-urlencoded",
+  "multipart/form-data",
+  "text/plain"
+]);
+function getFormEncType(encType) {
+  if (encType != null && !supportedFormEncTypes.has(encType)) {
+    warning(
+      false,
+      `"${encType}" is not a valid \`encType\` for \`<Form>\`/\`<fetcher.Form>\` and will default to "${defaultEncType}"`
+    );
+    return null;
+  }
+  return encType;
+}
+function getFormSubmissionInfo(target, basename) {
+  let method;
+  let action;
+  let encType;
+  let formData;
+  let body;
+  if (isFormElement(target)) {
+    let attr = target.getAttribute("action");
+    action = attr ? stripBasename(attr, basename) : null;
+    method = target.getAttribute("method") || defaultMethod;
+    encType = getFormEncType(target.getAttribute("enctype")) || defaultEncType;
+    formData = new FormData(target);
+  } else if (isButtonElement(target) || isInputElement(target) && (target.type === "submit" || target.type === "image")) {
+    let form2 = target.form;
+    if (form2 == null) {
+      throw new Error(
+        `Cannot submit a <button> or <input type="submit"> without a <form>`
+      );
+    }
+    let attr = target.getAttribute("formaction") || form2.getAttribute("action");
+    action = attr ? stripBasename(attr, basename) : null;
+    method = target.getAttribute("formmethod") || form2.getAttribute("method") || defaultMethod;
+    encType = getFormEncType(target.getAttribute("formenctype")) || getFormEncType(form2.getAttribute("enctype")) || defaultEncType;
+    formData = new FormData(form2, target);
+    if (!isFormDataSubmitterSupported()) {
+      let { name, type, value } = target;
+      if (type === "image") {
+        let prefix = name ? `${name}.` : "";
+        formData.append(`${prefix}x`, "0");
+        formData.append(`${prefix}y`, "0");
+      } else if (name) {
+        formData.append(name, value);
+      }
+    }
+  } else if (isHtmlElement(target)) {
+    throw new Error(
+      `Cannot submit element that is not <form>, <button>, or <input type="submit|image">`
+    );
+  } else {
+    method = defaultMethod;
+    action = null;
+    encType = defaultEncType;
+    body = target;
+  }
+  if (formData && encType === "text/plain") {
+    body = formData;
+    formData = void 0;
+  }
+  return { action, method: method.toLowerCase(), encType, formData, body };
+}
+function invariant2(value, message) {
+  if (value === false || value === null || typeof value === "undefined") {
+    throw new Error(message);
+  }
+}
+async function loadRouteModule(route, routeModulesCache) {
+  if (route.id in routeModulesCache) {
+    return routeModulesCache[route.id];
+  }
+  try {
+    let routeModule = await import(
+      /* @vite-ignore */
+      /* webpackIgnore: true */
+      route.module
+    );
+    routeModulesCache[route.id] = routeModule;
+    return routeModule;
+  } catch (error2) {
+    console.error(
+      `Error loading route module \`${route.module}\`, reloading page...`
+    );
+    console.error(error2);
+    if (window.__reactRouterContext && window.__reactRouterContext.isSpaMode && // @ts-expect-error
+    void 0) ;
+    window.location.reload();
+    return new Promise(() => {
+    });
+  }
+}
+function isHtmlLinkDescriptor(object) {
+  if (object == null) {
+    return false;
+  }
+  if (object.href == null) {
+    return object.rel === "preload" && typeof object.imageSrcSet === "string" && typeof object.imageSizes === "string";
+  }
+  return typeof object.rel === "string" && typeof object.href === "string";
+}
+async function getKeyedPrefetchLinks(matches, manifest, routeModules) {
+  let links = await Promise.all(
+    matches.map(async (match) => {
+      let route = manifest.routes[match.route.id];
+      if (route) {
+        let mod = await loadRouteModule(route, routeModules);
+        return mod.links ? mod.links() : [];
+      }
+      return [];
+    })
+  );
+  return dedupeLinkDescriptors(
+    links.flat(1).filter(isHtmlLinkDescriptor).filter((link) => link.rel === "stylesheet" || link.rel === "preload").map(
+      (link) => link.rel === "stylesheet" ? { ...link, rel: "prefetch", as: "style" } : { ...link, rel: "prefetch" }
+    )
+  );
+}
+function getNewMatchesForLinks(page, nextMatches, currentMatches, manifest, location, mode) {
+  let isNew = (match, index) => {
+    if (!currentMatches[index]) return true;
+    return match.route.id !== currentMatches[index].route.id;
+  };
+  let matchPathChanged = (match, index) => {
+    var _a;
+    return (
+      // param change, /users/123 -> /users/456
+      currentMatches[index].pathname !== match.pathname || // splat param changed, which is not present in match.path
+      // e.g. /files/images/avatar.jpg -> files/finances.xls
+      ((_a = currentMatches[index].route.path) == null ? void 0 : _a.endsWith("*")) && currentMatches[index].params["*"] !== match.params["*"]
+    );
+  };
+  if (mode === "assets") {
+    return nextMatches.filter(
+      (match, index) => isNew(match, index) || matchPathChanged(match, index)
+    );
+  }
+  if (mode === "data") {
+    return nextMatches.filter((match, index) => {
+      var _a;
+      let manifestRoute = manifest.routes[match.route.id];
+      if (!manifestRoute || !manifestRoute.hasLoader) {
+        return false;
+      }
+      if (isNew(match, index) || matchPathChanged(match, index)) {
+        return true;
+      }
+      if (match.route.shouldRevalidate) {
+        let routeChoice = match.route.shouldRevalidate({
+          currentUrl: new URL(
+            location.pathname + location.search + location.hash,
+            window.origin
+          ),
+          currentParams: ((_a = currentMatches[0]) == null ? void 0 : _a.params) || {},
+          nextUrl: new URL(page, window.origin),
+          nextParams: match.params,
+          defaultShouldRevalidate: true
+        });
+        if (typeof routeChoice === "boolean") {
+          return routeChoice;
+        }
+      }
+      return true;
+    });
+  }
+  return [];
+}
+function getModuleLinkHrefs(matches, manifest, { includeHydrateFallback } = {}) {
+  return dedupeHrefs(
+    matches.map((match) => {
+      let route = manifest.routes[match.route.id];
+      if (!route) return [];
+      let hrefs = [route.module];
+      if (route.clientActionModule) {
+        hrefs = hrefs.concat(route.clientActionModule);
+      }
+      if (route.clientLoaderModule) {
+        hrefs = hrefs.concat(route.clientLoaderModule);
+      }
+      if (includeHydrateFallback && route.hydrateFallbackModule) {
+        hrefs = hrefs.concat(route.hydrateFallbackModule);
+      }
+      if (route.imports) {
+        hrefs = hrefs.concat(route.imports);
+      }
+      return hrefs;
+    }).flat(1)
+  );
+}
+function dedupeHrefs(hrefs) {
+  return [...new Set(hrefs)];
+}
+function sortKeys(obj) {
+  let sorted = {};
+  let keys = Object.keys(obj).sort();
+  for (let key of keys) {
+    sorted[key] = obj[key];
+  }
+  return sorted;
+}
+function dedupeLinkDescriptors(descriptors, preloads) {
+  let set = /* @__PURE__ */ new Set();
+  new Set(preloads);
+  return descriptors.reduce((deduped, descriptor) => {
+    let key = JSON.stringify(sortKeys(descriptor));
+    if (!set.has(key)) {
+      set.add(key);
+      deduped.push({ key, link: descriptor });
+    }
+    return deduped;
+  }, []);
+}
+var NO_BODY_STATUS_CODES = /* @__PURE__ */ new Set([100, 101, 204, 205]);
+function singleFetchUrl(reqUrl, basename) {
+  let url = typeof reqUrl === "string" ? new URL(
+    reqUrl,
+    // This can be called during the SSR flow via PrefetchPageLinksImpl so
+    // don't assume window is available
+    typeof window === "undefined" ? "server://singlefetch/" : window.location.origin
+  ) : reqUrl;
+  if (url.pathname === "/") {
+    url.pathname = "_root.data";
+  } else if (basename && stripBasename(url.pathname, basename) === "/") {
+    url.pathname = `${basename.replace(/\/$/, "")}/_root.data`;
+  } else {
+    url.pathname = `${url.pathname.replace(/\/$/, "")}.data`;
+  }
+  return url;
+}
+function useDataRouterContext2() {
+  let context = reactExports.useContext(DataRouterContext);
+  invariant2(
+    context,
+    "You must render this element inside a <DataRouterContext.Provider> element"
+  );
+  return context;
+}
+function useDataRouterStateContext() {
+  let context = reactExports.useContext(DataRouterStateContext);
+  invariant2(
+    context,
+    "You must render this element inside a <DataRouterStateContext.Provider> element"
+  );
+  return context;
+}
+var FrameworkContext = reactExports.createContext(void 0);
+FrameworkContext.displayName = "FrameworkContext";
+function useFrameworkContext() {
+  let context = reactExports.useContext(FrameworkContext);
+  invariant2(
+    context,
+    "You must render this element inside a <HydratedRouter> element"
+  );
+  return context;
+}
+function usePrefetchBehavior(prefetch, theirElementProps) {
+  let frameworkContext = reactExports.useContext(FrameworkContext);
+  let [maybePrefetch, setMaybePrefetch] = reactExports.useState(false);
+  let [shouldPrefetch, setShouldPrefetch] = reactExports.useState(false);
+  let { onFocus, onBlur, onMouseEnter, onMouseLeave, onTouchStart } = theirElementProps;
+  let ref = reactExports.useRef(null);
+  reactExports.useEffect(() => {
+    if (prefetch === "render") {
+      setShouldPrefetch(true);
+    }
+    if (prefetch === "viewport") {
+      let callback = (entries) => {
+        entries.forEach((entry) => {
+          setShouldPrefetch(entry.isIntersecting);
+        });
+      };
+      let observer = new IntersectionObserver(callback, { threshold: 0.5 });
+      if (ref.current) observer.observe(ref.current);
+      return () => {
+        observer.disconnect();
+      };
+    }
+  }, [prefetch]);
+  reactExports.useEffect(() => {
+    if (maybePrefetch) {
+      let id = setTimeout(() => {
+        setShouldPrefetch(true);
+      }, 100);
+      return () => {
+        clearTimeout(id);
+      };
+    }
+  }, [maybePrefetch]);
+  let setIntent = () => {
+    setMaybePrefetch(true);
+  };
+  let cancelIntent = () => {
+    setMaybePrefetch(false);
+    setShouldPrefetch(false);
+  };
+  if (!frameworkContext) {
+    return [false, ref, {}];
+  }
+  if (prefetch !== "intent") {
+    return [shouldPrefetch, ref, {}];
+  }
+  return [
+    shouldPrefetch,
+    ref,
+    {
+      onFocus: composeEventHandlers(onFocus, setIntent),
+      onBlur: composeEventHandlers(onBlur, cancelIntent),
+      onMouseEnter: composeEventHandlers(onMouseEnter, setIntent),
+      onMouseLeave: composeEventHandlers(onMouseLeave, cancelIntent),
+      onTouchStart: composeEventHandlers(onTouchStart, setIntent)
+    }
+  ];
+}
+function composeEventHandlers(theirHandler, ourHandler) {
+  return (event) => {
+    theirHandler && theirHandler(event);
+    if (!event.defaultPrevented) {
+      ourHandler(event);
+    }
+  };
+}
+function PrefetchPageLinks({
+  page,
+  ...dataLinkProps
+}) {
+  let { router } = useDataRouterContext2();
+  let matches = reactExports.useMemo(
+    () => matchRoutes(router.routes, page, router.basename),
+    [router.routes, page, router.basename]
+  );
+  if (!matches) {
+    return null;
+  }
+  return /* @__PURE__ */ reactExports.createElement(PrefetchPageLinksImpl, { page, matches, ...dataLinkProps });
+}
+function useKeyedPrefetchLinks(matches) {
+  let { manifest, routeModules } = useFrameworkContext();
+  let [keyedPrefetchLinks, setKeyedPrefetchLinks] = reactExports.useState([]);
+  reactExports.useEffect(() => {
+    let interrupted = false;
+    void getKeyedPrefetchLinks(matches, manifest, routeModules).then(
+      (links) => {
+        if (!interrupted) {
+          setKeyedPrefetchLinks(links);
+        }
+      }
+    );
+    return () => {
+      interrupted = true;
+    };
+  }, [matches, manifest, routeModules]);
+  return keyedPrefetchLinks;
+}
+function PrefetchPageLinksImpl({
+  page,
+  matches: nextMatches,
+  ...linkProps
+}) {
+  let location = useLocation();
+  let { manifest, routeModules } = useFrameworkContext();
+  let { basename } = useDataRouterContext2();
+  let { loaderData, matches } = useDataRouterStateContext();
+  let newMatchesForData = reactExports.useMemo(
+    () => getNewMatchesForLinks(
+      page,
+      nextMatches,
+      matches,
+      manifest,
+      location,
+      "data"
+    ),
+    [page, nextMatches, matches, manifest, location]
+  );
+  let newMatchesForAssets = reactExports.useMemo(
+    () => getNewMatchesForLinks(
+      page,
+      nextMatches,
+      matches,
+      manifest,
+      location,
+      "assets"
+    ),
+    [page, nextMatches, matches, manifest, location]
+  );
+  let dataHrefs = reactExports.useMemo(() => {
+    if (page === location.pathname + location.search + location.hash) {
+      return [];
+    }
+    let routesParams = /* @__PURE__ */ new Set();
+    let foundOptOutRoute = false;
+    nextMatches.forEach((m) => {
+      var _a;
+      let manifestRoute = manifest.routes[m.route.id];
+      if (!manifestRoute || !manifestRoute.hasLoader) {
+        return;
+      }
+      if (!newMatchesForData.some((m2) => m2.route.id === m.route.id) && m.route.id in loaderData && ((_a = routeModules[m.route.id]) == null ? void 0 : _a.shouldRevalidate)) {
+        foundOptOutRoute = true;
+      } else if (manifestRoute.hasClientLoader) {
+        foundOptOutRoute = true;
+      } else {
+        routesParams.add(m.route.id);
+      }
+    });
+    if (routesParams.size === 0) {
+      return [];
+    }
+    let url = singleFetchUrl(page, basename);
+    if (foundOptOutRoute && routesParams.size > 0) {
+      url.searchParams.set(
+        "_routes",
+        nextMatches.filter((m) => routesParams.has(m.route.id)).map((m) => m.route.id).join(",")
+      );
+    }
+    return [url.pathname + url.search];
+  }, [
+    basename,
+    loaderData,
+    location,
+    manifest,
+    newMatchesForData,
+    nextMatches,
+    page,
+    routeModules
+  ]);
+  let moduleHrefs = reactExports.useMemo(
+    () => getModuleLinkHrefs(newMatchesForAssets, manifest),
+    [newMatchesForAssets, manifest]
+  );
+  let keyedPrefetchLinks = useKeyedPrefetchLinks(newMatchesForAssets);
+  return /* @__PURE__ */ reactExports.createElement(reactExports.Fragment, null, dataHrefs.map((href2) => /* @__PURE__ */ reactExports.createElement("link", { key: href2, rel: "prefetch", as: "fetch", href: href2, ...linkProps })), moduleHrefs.map((href2) => /* @__PURE__ */ reactExports.createElement("link", { key: href2, rel: "modulepreload", href: href2, ...linkProps })), keyedPrefetchLinks.map(({ key, link }) => (
+    // these don't spread `linkProps` because they are full link descriptors
+    // already with their own props
+    /* @__PURE__ */ reactExports.createElement("link", { key, ...link })
+  )));
+}
+function mergeRefs(...refs) {
+  return (value) => {
+    refs.forEach((ref) => {
+      if (typeof ref === "function") {
+        ref(value);
+      } else if (ref != null) {
+        ref.current = value;
+      }
+    });
+  };
+}
+var isBrowser = typeof window !== "undefined" && typeof window.document !== "undefined" && typeof window.document.createElement !== "undefined";
+try {
+  if (isBrowser) {
+    window.__reactRouterVersion = "7.5.1";
+  }
+} catch (e) {
+}
+function BrowserRouter({
+  basename,
+  children,
+  window: window2
+}) {
+  let historyRef = reactExports.useRef();
+  if (historyRef.current == null) {
+    historyRef.current = createBrowserHistory({ window: window2, v5Compat: true });
+  }
+  let history = historyRef.current;
+  let [state, setStateImpl] = reactExports.useState({
+    action: history.action,
+    location: history.location
+  });
+  let setState = reactExports.useCallback(
+    (newState) => {
+      reactExports.startTransition(() => setStateImpl(newState));
+    },
+    [setStateImpl]
+  );
+  reactExports.useLayoutEffect(() => history.listen(setState), [history, setState]);
+  return /* @__PURE__ */ reactExports.createElement(
+    Router,
+    {
+      basename,
+      children,
+      location: state.location,
+      navigationType: state.action,
+      navigator: history
+    }
+  );
+}
+var ABSOLUTE_URL_REGEX2 = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i;
+var Link = reactExports.forwardRef(
+  function LinkWithRef({
+    onClick,
+    discover = "render",
+    prefetch = "none",
+    relative,
+    reloadDocument,
+    replace: replace2,
+    state,
+    target,
+    to,
+    preventScrollReset,
+    viewTransition,
+    ...rest
+  }, forwardedRef) {
+    let { basename } = reactExports.useContext(NavigationContext);
+    let isAbsolute = typeof to === "string" && ABSOLUTE_URL_REGEX2.test(to);
+    let absoluteHref;
+    let isExternal = false;
+    if (typeof to === "string" && isAbsolute) {
+      absoluteHref = to;
+      if (isBrowser) {
+        try {
+          let currentUrl = new URL(window.location.href);
+          let targetUrl = to.startsWith("//") ? new URL(currentUrl.protocol + to) : new URL(to);
+          let path = stripBasename(targetUrl.pathname, basename);
+          if (targetUrl.origin === currentUrl.origin && path != null) {
+            to = path + targetUrl.search + targetUrl.hash;
+          } else {
+            isExternal = true;
+          }
+        } catch (e) {
+          warning(
+            false,
+            `<Link to="${to}"> contains an invalid URL which will probably break when clicked - please update to a valid URL path.`
+          );
+        }
+      }
+    }
+    let href2 = useHref(to, { relative });
+    let [shouldPrefetch, prefetchRef, prefetchHandlers] = usePrefetchBehavior(
+      prefetch,
+      rest
+    );
+    let internalOnClick = useLinkClickHandler(to, {
+      replace: replace2,
+      state,
+      target,
+      preventScrollReset,
+      relative,
+      viewTransition
+    });
+    function handleClick(event) {
+      if (onClick) onClick(event);
+      if (!event.defaultPrevented) {
+        internalOnClick(event);
+      }
+    }
+    let link = (
+      // eslint-disable-next-line jsx-a11y/anchor-has-content
+      /* @__PURE__ */ reactExports.createElement(
+        "a",
+        {
+          ...rest,
+          ...prefetchHandlers,
+          href: absoluteHref || href2,
+          onClick: isExternal || reloadDocument ? onClick : handleClick,
+          ref: mergeRefs(forwardedRef, prefetchRef),
+          target,
+          "data-discover": !isAbsolute && discover === "render" ? "true" : void 0
+        }
+      )
+    );
+    return shouldPrefetch && !isAbsolute ? /* @__PURE__ */ reactExports.createElement(reactExports.Fragment, null, link, /* @__PURE__ */ reactExports.createElement(PrefetchPageLinks, { page: href2 })) : link;
+  }
+);
+Link.displayName = "Link";
+var NavLink = reactExports.forwardRef(
+  function NavLinkWithRef({
+    "aria-current": ariaCurrentProp = "page",
+    caseSensitive = false,
+    className: classNameProp = "",
+    end = false,
+    style: styleProp,
+    to,
+    viewTransition,
+    children,
+    ...rest
+  }, ref) {
+    let path = useResolvedPath(to, { relative: rest.relative });
+    let location = useLocation();
+    let routerState = reactExports.useContext(DataRouterStateContext);
+    let { navigator: navigator2, basename } = reactExports.useContext(NavigationContext);
+    let isTransitioning = routerState != null && // Conditional usage is OK here because the usage of a data router is static
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useViewTransitionState(path) && viewTransition === true;
+    let toPathname = navigator2.encodeLocation ? navigator2.encodeLocation(path).pathname : path.pathname;
+    let locationPathname = location.pathname;
+    let nextLocationPathname = routerState && routerState.navigation && routerState.navigation.location ? routerState.navigation.location.pathname : null;
+    if (!caseSensitive) {
+      locationPathname = locationPathname.toLowerCase();
+      nextLocationPathname = nextLocationPathname ? nextLocationPathname.toLowerCase() : null;
+      toPathname = toPathname.toLowerCase();
+    }
+    if (nextLocationPathname && basename) {
+      nextLocationPathname = stripBasename(nextLocationPathname, basename) || nextLocationPathname;
+    }
+    const endSlashPosition = toPathname !== "/" && toPathname.endsWith("/") ? toPathname.length - 1 : toPathname.length;
+    let isActive = locationPathname === toPathname || !end && locationPathname.startsWith(toPathname) && locationPathname.charAt(endSlashPosition) === "/";
+    let isPending = nextLocationPathname != null && (nextLocationPathname === toPathname || !end && nextLocationPathname.startsWith(toPathname) && nextLocationPathname.charAt(toPathname.length) === "/");
+    let renderProps = {
+      isActive,
+      isPending,
+      isTransitioning
+    };
+    let ariaCurrent = isActive ? ariaCurrentProp : void 0;
+    let className;
+    if (typeof classNameProp === "function") {
+      className = classNameProp(renderProps);
+    } else {
+      className = [
+        classNameProp,
+        isActive ? "active" : null,
+        isPending ? "pending" : null,
+        isTransitioning ? "transitioning" : null
+      ].filter(Boolean).join(" ");
+    }
+    let style = typeof styleProp === "function" ? styleProp(renderProps) : styleProp;
+    return /* @__PURE__ */ reactExports.createElement(
+      Link,
+      {
+        ...rest,
+        "aria-current": ariaCurrent,
+        className,
+        ref,
+        style,
+        to,
+        viewTransition
+      },
+      typeof children === "function" ? children(renderProps) : children
+    );
+  }
+);
+NavLink.displayName = "NavLink";
+var Form = reactExports.forwardRef(
+  ({
+    discover = "render",
+    fetcherKey,
+    navigate,
+    reloadDocument,
+    replace: replace2,
+    state,
+    method = defaultMethod,
+    action,
+    onSubmit,
+    relative,
+    preventScrollReset,
+    viewTransition,
+    ...props
+  }, forwardedRef) => {
+    let submit = useSubmit();
+    let formAction = useFormAction(action, { relative });
+    let formMethod = method.toLowerCase() === "get" ? "get" : "post";
+    let isAbsolute = typeof action === "string" && ABSOLUTE_URL_REGEX2.test(action);
+    let submitHandler = (event) => {
+      onSubmit && onSubmit(event);
+      if (event.defaultPrevented) return;
+      event.preventDefault();
+      let submitter = event.nativeEvent.submitter;
+      let submitMethod = (submitter == null ? void 0 : submitter.getAttribute("formmethod")) || method;
+      submit(submitter || event.currentTarget, {
+        fetcherKey,
+        method: submitMethod,
+        navigate,
+        replace: replace2,
+        state,
+        relative,
+        preventScrollReset,
+        viewTransition
+      });
+    };
+    return /* @__PURE__ */ reactExports.createElement(
+      "form",
+      {
+        ref: forwardedRef,
+        method: formMethod,
+        action: formAction,
+        onSubmit: reloadDocument ? onSubmit : submitHandler,
+        ...props,
+        "data-discover": !isAbsolute && discover === "render" ? "true" : void 0
+      }
+    );
+  }
+);
+Form.displayName = "Form";
+function getDataRouterConsoleError2(hookName) {
+  return `${hookName} must be used within a data router.  See https://reactrouter.com/en/main/routers/picking-a-router.`;
+}
+function useDataRouterContext3(hookName) {
+  let ctx = reactExports.useContext(DataRouterContext);
+  invariant(ctx, getDataRouterConsoleError2(hookName));
+  return ctx;
+}
+function useLinkClickHandler(to, {
+  target,
+  replace: replaceProp,
+  state,
+  preventScrollReset,
+  relative,
+  viewTransition
+} = {}) {
+  let navigate = useNavigate();
+  let location = useLocation();
+  let path = useResolvedPath(to, { relative });
+  return reactExports.useCallback(
+    (event) => {
+      if (shouldProcessLinkClick(event, target)) {
+        event.preventDefault();
+        let replace2 = replaceProp !== void 0 ? replaceProp : createPath(location) === createPath(path);
+        navigate(to, {
+          replace: replace2,
+          state,
+          preventScrollReset,
+          relative,
+          viewTransition
+        });
+      }
+    },
+    [
+      location,
+      navigate,
+      path,
+      replaceProp,
+      state,
+      target,
+      to,
+      preventScrollReset,
+      relative,
+      viewTransition
+    ]
+  );
+}
+var fetcherId = 0;
+var getUniqueFetcherId = () => `__${String(++fetcherId)}__`;
+function useSubmit() {
+  let { router } = useDataRouterContext3(
+    "useSubmit"
+    /* UseSubmit */
+  );
+  let { basename } = reactExports.useContext(NavigationContext);
+  let currentRouteId = useRouteId();
+  return reactExports.useCallback(
+    async (target, options = {}) => {
+      let { action, method, encType, formData, body } = getFormSubmissionInfo(
+        target,
+        basename
+      );
+      if (options.navigate === false) {
+        let key = options.fetcherKey || getUniqueFetcherId();
+        await router.fetch(key, currentRouteId, options.action || action, {
+          preventScrollReset: options.preventScrollReset,
+          formData,
+          body,
+          formMethod: options.method || method,
+          formEncType: options.encType || encType,
+          flushSync: options.flushSync
+        });
+      } else {
+        await router.navigate(options.action || action, {
+          preventScrollReset: options.preventScrollReset,
+          formData,
+          body,
+          formMethod: options.method || method,
+          formEncType: options.encType || encType,
+          replace: options.replace,
+          state: options.state,
+          fromRouteId: currentRouteId,
+          flushSync: options.flushSync,
+          viewTransition: options.viewTransition
+        });
+      }
+    },
+    [router, basename, currentRouteId]
+  );
+}
+function useFormAction(action, { relative } = {}) {
+  let { basename } = reactExports.useContext(NavigationContext);
+  let routeContext = reactExports.useContext(RouteContext);
+  invariant(routeContext, "useFormAction must be used inside a RouteContext");
+  let [match] = routeContext.matches.slice(-1);
+  let path = { ...useResolvedPath(action ? action : ".", { relative }) };
+  let location = useLocation();
+  if (action == null) {
+    path.search = location.search;
+    let params = new URLSearchParams(path.search);
+    let indexValues = params.getAll("index");
+    let hasNakedIndexParam = indexValues.some((v) => v === "");
+    if (hasNakedIndexParam) {
+      params.delete("index");
+      indexValues.filter((v) => v).forEach((v) => params.append("index", v));
+      let qs = params.toString();
+      path.search = qs ? `?${qs}` : "";
+    }
+  }
+  if ((!action || action === ".") && match.route.index) {
+    path.search = path.search ? path.search.replace(/^\?/, "?index&") : "?index";
+  }
+  if (basename !== "/") {
+    path.pathname = path.pathname === "/" ? basename : joinPaths([basename, path.pathname]);
+  }
+  return createPath(path);
+}
+function useViewTransitionState(to, opts = {}) {
+  let vtContext = reactExports.useContext(ViewTransitionContext);
+  invariant(
+    vtContext != null,
+    "`useViewTransitionState` must be used within `react-router-dom`'s `RouterProvider`.  Did you accidentally import `RouterProvider` from `react-router`?"
+  );
+  let { basename } = useDataRouterContext3(
+    "useViewTransitionState"
+    /* useViewTransitionState */
+  );
+  let path = useResolvedPath(to, { relative: opts.relative });
+  if (!vtContext.isTransitioning) {
+    return false;
+  }
+  let currentPath = stripBasename(vtContext.currentLocation.pathname, basename) || vtContext.currentLocation.pathname;
+  let nextPath = stripBasename(vtContext.nextLocation.pathname, basename) || vtContext.nextLocation.pathname;
+  return matchPath(path.pathname, nextPath) != null || matchPath(path.pathname, currentPath) != null;
+}
+new TextEncoder();
+/* @__PURE__ */ new Set([
+  ...NO_BODY_STATUS_CODES,
+  304
+]);
+const container$9 = "_container_3yyp0_1";
+const sidePanel = "_sidePanel_3yyp0_7";
+const main = "_main_3yyp0_23";
+const styles$f = {
+  container: container$9,
+  sidePanel,
+  main
 };
-const title = "_title_47ios_1";
-const guideText = "_guideText_47ios_9";
-const styles$7 = {
-  title,
+function MobileLayout({ children }) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$f.container, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: styles$f.sidePanel, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "페이먼츠 미션 2단계" }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: styles$f.main, children }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: styles$f.sidePanel, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "ㅇ_ㅇ" }) })
+  ] });
+}
+const PAGE_URL = {
+  HOME: "/",
+  ADD_CARD: "/add-card",
+  ADD_CARD_SUCCESS: "/add-card/success"
+};
+const container$8 = "_container_8locc_1";
+const styles$e = {
+  container: container$8
+};
+const form = "_form_14z3q_1";
+const submitButtonContainer = "_submitButtonContainer_14z3q_16";
+const submitButton = "_submitButton_14z3q_16";
+const styles$d = {
+  form,
+  submitButtonContainer,
+  submitButton
+};
+const title$1 = "_title_1usuk_1";
+const guideText = "_guideText_1usuk_9";
+const styles$c = {
+  title: title$1,
   guideText
 };
 function CardInputBox({ title: title2, guideText: guideText2, InputComponent }) {
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$7.container, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: styles$7.title, children: title2 }),
-    guideText2 && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: styles$7.guideText, children: guideText2 }),
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$c.container, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: styles$c.title, children: title2 }),
+    guideText2 && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: styles$c.guideText, children: guideText2 }),
     InputComponent
   ] });
 }
-const container$2 = "_container_1cm80_1";
-const cardInputs = "_cardInputs_1cm80_9";
-const cardInputBox = "_cardInputBox_1cm80_14";
-const errorMessage$2 = "_errorMessage_1cm80_21";
-const styles$6 = {
-  container: container$2,
+const container$7 = "_container_8dy84_1";
+const cardInputs = "_cardInputs_8dy84_9";
+const cardInputBox = "_cardInputBox_8dy84_14";
+const errorMessage$3 = "_errorMessage_8dy84_21";
+const styles$b = {
+  container: container$7,
   cardInputs,
   cardInputBox,
-  errorMessage: errorMessage$2
+  errorMessage: errorMessage$3
 };
 const label = "_label_1vjtc_1";
 const hidden = "_hidden_1vjtc_8";
-const styles$5 = {
+const styles$a = {
   label,
   hidden
 };
@@ -12122,14 +14363,14 @@ function Label({ isHidden, children, ...props }) {
     "label",
     {
       ...props,
-      className: `${styles$5.label} ${isHidden ? styles$5.hidden : ""}`,
+      className: `${styles$a.label} ${isHidden ? styles$a.hidden : ""}`,
       children
     }
   );
 }
 const input = "_input_v81jq_1";
 const error = "_error_v81jq_13";
-const styles$4 = {
+const styles$9 = {
   input,
   error
 };
@@ -12138,7 +14379,7 @@ function Input({ isError, ...props }) {
     "input",
     {
       ...props,
-      className: `${styles$4.input} ${isError ? styles$4.error : ""}`
+      className: `${styles$9.input} ${isError ? styles$9.error : ""}`
     }
   );
 }
@@ -12156,6 +14397,7 @@ const CARD_NUMBER_INPUT_KEYS = Object.keys(
 );
 function CardNumberInputs({
   cardNumberState,
+  cardNumberInputRefs,
   handleCardNumberChange
 }) {
   const { first, second, third, fourth } = cardNumberState;
@@ -12165,8 +14407,8 @@ function CardNumberInputs({
     third.isError,
     fourth.isError
   );
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$6.container, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: styles$6.cardInputs, children: CARD_NUMBER_INPUT_KEYS.map((inputKey, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: styles$6.cardInputBox, children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$b.container, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: styles$b.cardInputs, children: CARD_NUMBER_INPUT_KEYS.map((inputKey, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: styles$b.cardInputBox, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         Label,
         {
@@ -12178,11 +14420,15 @@ function CardNumberInputs({
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         Input,
         {
+          autoFocus: idx === 0,
+          ref: cardNumberInputRefs[inputKey],
           id: `card-number-${inputKey}-input`,
           role: `card-number-${inputKey}-input`,
           type: "text",
           inputMode: "numeric",
           maxLength: 4,
+          pattern: "[0-9]*",
+          required: true,
           placeholder: "1234",
           isError: cardNumberState[inputKey].isError,
           value: cardNumberState[inputKey].value,
@@ -12190,25 +14436,25 @@ function CardNumberInputs({
         }
       )
     ] }, inputKey)) }),
-    isCardNumberValid && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { id: "error-message", className: styles$6.errorMessage, children: "4자리의 숫자만 입력 가능합니다." })
+    isCardNumberValid && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { id: "error-message", className: styles$b.errorMessage, children: "4자리의 숫자만 입력 가능합니다." })
   ] });
 }
-const container$1 = "_container_ju1v7_1";
-const expireDateInputContainer = "_expireDateInputContainer_ju1v7_9";
-const expireDateBox = "_expireDateBox_ju1v7_14";
-const expireDateInputBox = "_expireDateInputBox_ju1v7_18";
-const errorMessage$1 = "_errorMessage_ju1v7_27";
-const styles$3 = {
-  container: container$1,
+const container$6 = "_container_1dizd_1";
+const expireDateInputContainer = "_expireDateInputContainer_1dizd_9";
+const expireDateBox = "_expireDateBox_1dizd_14";
+const expireDateInputBox = "_expireDateInputBox_1dizd_18";
+const errorMessage$2 = "_errorMessage_1dizd_27";
+const styles$8 = {
+  container: container$6,
   expireDateInputContainer,
   expireDateBox,
   expireDateInputBox,
-  errorMessage: errorMessage$1
+  errorMessage: errorMessage$2
 };
 const EXPIRE_DATE_ERROR_MESSAGE = {
   INVALID_NUMBER: "숫자만 입력 가능합니다.",
   INVALID_YEAR_LENGTH: "년도는 2자리만 입력 가능합니다.",
-  INVALID_MONTH_LENGTH: "월은 최소 1자 ~ 최대 2자까지만 입력 가능합니다.",
+  INVALID_MONTH_LENGTH: "월은 1자 ~ 2자까지만 입력 가능합니다.",
   INVALID_MONTH_RANGE: "월은 1 ~ 12까지만 입력 가능합니다."
 };
 const INITIAL_EXPIRE_DATE_STATE = {
@@ -12220,6 +14466,7 @@ const EXPIRE_DATE_KEYS = Object.keys(
 );
 function CardExpireDateInputs({
   expireDate,
+  expireDateInputRefs,
   handleExpireMonthChange,
   handleExpireYearChange,
   handleExpireMonthBlur
@@ -12228,16 +14475,20 @@ function CardExpireDateInputs({
     MM: handleExpireMonthChange,
     YY: handleExpireYearChange
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: styles$3.container, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: styles$3.expireDateInputContainer, children: EXPIRE_DATE_KEYS.map((expireKey, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$3.expireDateBox, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: styles$3.expireDateInputBox, children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: styles$8.container, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: styles$8.expireDateInputContainer, children: EXPIRE_DATE_KEYS.map((expireKey, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$8.expireDateBox, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: styles$8.expireDateInputBox, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: `expire-${expireKey}-input`, isHidden: idx !== 0, children: "유효 기간" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         Input,
         {
+          ref: expireDateInputRefs[expireKey],
+          autoFocus: idx === 0,
           id: `expire-${expireKey}-input`,
           type: "text",
           inputMode: "numeric",
           maxLength: 2,
+          pattern: "[0-9]*",
+          required: true,
           placeholder: expireKey,
           isError: Boolean(expireDate[expireKey].errorMessage),
           value: expireDate[expireKey].value,
@@ -12250,91 +14501,477 @@ function CardExpireDateInputs({
       "span",
       {
         id: `${expireKey}-error-message`,
-        className: styles$3.errorMessage,
+        className: styles$8.errorMessage,
         children: expireDate[expireKey].errorMessage
       }
     )
   ] }, expireKey)) }) });
 }
-const container = "_container_1sop9_1";
-const cvcInputs = "_cvcInputs_1sop9_9";
-const errorMessage = "_errorMessage_1sop9_14";
-const styles$2 = {
-  container,
+const container$5 = "_container_awxy6_1";
+const cvcInputs = "_cvcInputs_awxy6_9";
+const errorMessage$1 = "_errorMessage_awxy6_14";
+const styles$7 = {
+  container: container$5,
   cvcInputs,
-  errorMessage
+  errorMessage: errorMessage$1
 };
-function CVCInputs({ CVCState, handleCVCChange }) {
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$2.container, children: [
+function CVCInput({ CVCState, handleCVCChange }) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$7.container, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "cvc-input", children: "CVC" }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: styles$2.cvcInputs, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: styles$7.cvcInputs, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
       Input,
       {
+        autoFocus: true,
         id: "cvc-input",
         role: "cvc-input",
         type: "text",
         inputMode: "numeric",
         maxLength: 3,
+        pattern: "[0-9]*",
+        required: true,
         placeholder: "123",
         isError: CVCState.isError,
         value: CVCState.value,
         onChange: (e) => handleCVCChange(e.target.value)
       }
     ) }),
-    CVCState.isError && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { id: "error-message", className: styles$2.errorMessage, children: "3자리의 숫자만 입력 가능합니다." })
+    CVCState.isError && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { id: "error-message", className: styles$7.errorMessage, children: "3자리의 숫자만 입력 가능합니다." })
   ] });
 }
+const container$4 = "_container_6bmju_1";
+const styles$6 = {
+  container: container$4
+};
+const CARD_TYPE_LIST = [
+  "BC카드",
+  "신한카드",
+  "카카오뱅크",
+  "현대카드",
+  "우리카드",
+  "롯데카드",
+  "하나카드",
+  "국민카드"
+];
+const container$3 = "_container_1bbk9_12";
+const button$1 = "_button_1bbk9_17";
+const textBlack = "_textBlack_1bbk9_34";
+const activeButton = "_activeButton_1bbk9_38";
+const dropdownArea = "_dropdownArea_1bbk9_42";
+const dropdownList = "_dropdownList_1bbk9_50";
+const dropdownListItem = "_dropdownListItem_1bbk9_66";
+const fixedHeight = "_fixedHeight_1bbk9_83";
+const styles$5 = {
+  container: container$3,
+  button: button$1,
+  textBlack,
+  activeButton,
+  dropdownArea,
+  dropdownList,
+  dropdownListItem,
+  fixedHeight
+};
+const useOutsideClick = (callback) => {
+  const ref = reactExports.useRef(null);
+  reactExports.useEffect(() => {
+    const handleDocumentClick = ({ target }) => {
+      const container2 = ref.current;
+      if (!container2 || container2.contains(target)) {
+        return;
+      }
+      callback();
+    };
+    document.addEventListener("click", handleDocumentClick);
+    return () => {
+      document.removeEventListener("click", handleDocumentClick);
+    };
+  }, [ref]);
+  return ref;
+};
+const rotations = {
+  up: "0",
+  right: "90",
+  down: "180",
+  left: "270"
+};
+function ArrowIcon({ direction, color = "#acacac" }) {
+  const rotation = rotations[direction] ?? rotations.up;
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "svg",
+    {
+      xmlns: "http://www.w3.org/2000/svg",
+      width: "16",
+      height: "16",
+      viewBox: "0 0 16 16",
+      fill: "none",
+      style: { transform: `rotate(${rotation}deg)` },
+      children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M12.1801 9.54985L8.36014 5.72992L4.54021 9.54985",
+          stroke: color,
+          strokeWidth: "1.32867",
+          strokeLinecap: "round",
+          strokeLinejoin: "round"
+        }
+      )
+    }
+  );
+}
+function Dropdown({
+  selectedValue,
+  defaultValue,
+  dropdownList: dropdownList2,
+  onChange,
+  autoFocus = false
+}) {
+  const [isOpen, setIsOpen] = reactExports.useState(false);
+  const dropdownRef = useOutsideClick(() => setIsOpen(false));
+  const handleDropdownToggle = () => {
+    setIsOpen((prev) => !prev);
+  };
+  const handleDropdownItemClick = (item) => {
+    onChange(item);
+    setIsOpen(false);
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { ref: dropdownRef, className: styles$5.container, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "hidden" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "button",
+      {
+        autoFocus,
+        type: "button",
+        role: "dropdown-button",
+        onClick: handleDropdownToggle,
+        className: `${styles$5.button} ${isOpen ? styles$5.activeButton : ""} 
+        ${selectedValue ? styles$5.textBlack : ""}`,
+        children: [
+          selectedValue ?? defaultValue,
+          isOpen ? /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowIcon, { direction: "up", color: "#000" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowIcon, { direction: "down" })
+        ]
+      }
+    ),
+    isOpen && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$5.dropdownArea, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: styles$5.dropdownList, children: dropdownList2.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "li",
+        {
+          role: "dropdown-item",
+          className: styles$5.dropdownListItem,
+          onClick: () => handleDropdownItemClick(item),
+          children: item
+        },
+        item
+      )) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: styles$5.fixedHeight })
+    ] })
+  ] });
+}
+function CardTypeDropdown({
+  cardType,
+  handleCardTypeChange
+}) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: styles$6.container, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+    Dropdown,
+    {
+      selectedValue: cardType,
+      defaultValue: "카드사를 선택해 주세요.",
+      dropdownList: CARD_TYPE_LIST,
+      onChange: handleCardTypeChange,
+      autoFocus: true
+    }
+  ) });
+}
+const container$2 = "_container_ntk0l_1";
+const errorMessage = "_errorMessage_ntk0l_9";
+const styles$4 = {
+  container: container$2,
+  errorMessage
+};
+function CardPasswordInput({
+  cardPasswordState,
+  handleCardPasswordChange
+}) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$4.container, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "card-owner-input", children: "비밀번호 앞 2자리" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Input,
+      {
+        autoFocus: true,
+        role: "card-password-input",
+        id: "card-password-input",
+        type: "password",
+        inputMode: "numeric",
+        maxLength: 2,
+        required: true,
+        isError: Boolean(cardPasswordState.errorMessage),
+        placeholder: "비밀번호를 입력해 주세요.",
+        value: cardPasswordState.value,
+        onChange: (e) => handleCardPasswordChange(e.target.value)
+      }
+    ),
+    cardPasswordState.errorMessage && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { id: "error-message", className: styles$4.errorMessage, children: cardPasswordState.errorMessage })
+  ] });
+}
+const ADD_CARD_FORM_STEPS = {
+  CARD_NUMBER: "카드번호",
+  CARD_TYPE: "카드사",
+  EXPIRE_DATE: "유효기간",
+  CVC: "CVC",
+  CARD_PASSWORD: "비밀번호"
+};
+const ADD_CARD_FORM_STEP_VALUES = Object.values(ADD_CARD_FORM_STEPS);
+const useAddCardFormStep = (stepConditions) => {
+  const [addCardFormSteps, setAddCardFormSteps] = reactExports.useState([
+    ADD_CARD_FORM_STEPS.CARD_NUMBER
+  ]);
+  reactExports.useEffect(
+    function checkNextStep() {
+      const currentIndex = addCardFormSteps.length - 1;
+      const nextStep = ADD_CARD_FORM_STEP_VALUES[currentIndex + 1];
+      const currentStepCondition = stepConditions[currentIndex];
+      if (!currentStepCondition) {
+        return;
+      }
+      setAddCardFormSteps((prev) => [nextStep, ...prev]);
+    },
+    [...stepConditions]
+  );
+  return addCardFormSteps;
+};
+function SwitchCase({
+  value,
+  caseBy,
+  defaultComponent
+}) {
+  return (caseBy[value] ?? defaultComponent)();
+}
+const getIsAddFormSubmit = ({
+  cardNumberState,
+  cardType,
+  expireDate,
+  CVCState: CVCState2,
+  cardPasswordState
+}) => {
+  const isCardNumberValid = Object.values(cardNumberState).every(
+    ({ isError, value }) => !isError && value !== ""
+  );
+  const isCardTypeValid = cardType !== null;
+  const isExpireDateValid = Object.values(expireDate).every(
+    ({ errorMessage: errorMessage2, value }) => errorMessage2 === "" && value !== ""
+  );
+  const isCVCValid = !CVCState2.isError && CVCState2.value !== "";
+  const isCardPasswordValid = cardPasswordState.errorMessage === "" && cardPasswordState.value !== "";
+  return isCardNumberValid && isCardTypeValid && isExpireDateValid && isCVCValid && isCardPasswordValid;
+};
 function AddCardForm({ addCardState }) {
   const {
-    cardNumberState,
-    handleCardNumberChange,
-    expireDate,
-    handleExpireMonthChange,
-    handleExpireYearChange,
-    handleExpireMonthBlur,
-    CVCState,
-    handleCVCChange
+    controlledCardNumber,
+    controlledCardType,
+    controlledExpireDate,
+    controlledCVC,
+    controlledCardPassword
   } = addCardState;
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { className: styles$8.form, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      CardInputBox,
-      {
-        title: "결제할 카드 번호를 입력해 주세요",
-        guideText: "본인 명의의 카드만 결제 가능합니다.",
-        InputComponent: /* @__PURE__ */ jsxRuntimeExports.jsx(
-          CardNumberInputs,
-          {
-            cardNumberState,
-            handleCardNumberChange
-          }
-        )
+  const { cardNumberState, isNextStep: isCardNumberNextStep } = controlledCardNumber;
+  const { cardType, isNextStep: isCardTypeNextStep } = controlledCardType;
+  const { expireDate, isNextStep: isExpireDateNextStep } = controlledExpireDate;
+  const { CVCState, isNextStep: isCVCNextStep } = controlledCVC;
+  const { cardPasswordState } = controlledCardPassword;
+  const addCardFormSteps = useAddCardFormStep([
+    isCardNumberNextStep,
+    isCardTypeNextStep,
+    isExpireDateNextStep,
+    isCVCNextStep
+  ]);
+  const navigate = useNavigate();
+  const handleAddCardFormSubmit = (e) => {
+    e.preventDefault();
+    navigate(PAGE_URL.ADD_CARD_SUCCESS, {
+      state: {
+        firstCardNumber: cardNumberState.first.value,
+        cardType
       }
-    ),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      CardInputBox,
+    });
+  };
+  const isAddFormSubmit = getIsAddFormSubmit({
+    cardNumberState,
+    cardType,
+    expireDate,
+    CVCState,
+    cardPasswordState
+  });
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { className: styles$d.form, onSubmit: handleAddCardFormSubmit, children: [
+    addCardFormSteps.map((step) => /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+      SwitchCase,
       {
-        title: "카드 유효기간을 입력해 주세요",
-        guideText: "월/년도(MMYY)를 순서대로 입력해 주세요.",
-        InputComponent: /* @__PURE__ */ jsxRuntimeExports.jsx(
-          CardExpireDateInputs,
-          {
-            expireDate,
-            handleExpireMonthChange,
-            handleExpireYearChange,
-            handleExpireMonthBlur
-          }
-        )
+        value: step,
+        caseBy: {
+          [ADD_CARD_FORM_STEPS.CARD_NUMBER]: () => /* @__PURE__ */ jsxRuntimeExports.jsx(
+            CardInputBox,
+            {
+              title: "결제할 카드 번호를 입력해 주세요",
+              guideText: "본인 명의의 카드만 결제 가능합니다.",
+              InputComponent: /* @__PURE__ */ jsxRuntimeExports.jsx(CardNumberInputs, { ...controlledCardNumber })
+            }
+          ),
+          [ADD_CARD_FORM_STEPS.CARD_TYPE]: () => /* @__PURE__ */ jsxRuntimeExports.jsx(
+            CardInputBox,
+            {
+              title: "카드사를 선택해 주세요",
+              guideText: "현재 국내 카드사만 가능합니다.",
+              InputComponent: /* @__PURE__ */ jsxRuntimeExports.jsx(CardTypeDropdown, { ...controlledCardType })
+            }
+          ),
+          [ADD_CARD_FORM_STEPS.EXPIRE_DATE]: () => /* @__PURE__ */ jsxRuntimeExports.jsx(
+            CardInputBox,
+            {
+              title: "카드 유효기간을 입력해 주세요",
+              guideText: "월/년도(MMYY)를 순서대로 입력해 주세요.",
+              InputComponent: /* @__PURE__ */ jsxRuntimeExports.jsx(CardExpireDateInputs, { ...controlledExpireDate })
+            }
+          ),
+          [ADD_CARD_FORM_STEPS.CVC]: () => /* @__PURE__ */ jsxRuntimeExports.jsx(
+            CardInputBox,
+            {
+              title: "CVC 번호를 입력해 주세요",
+              InputComponent: /* @__PURE__ */ jsxRuntimeExports.jsx(CVCInput, { ...controlledCVC })
+            }
+          ),
+          [ADD_CARD_FORM_STEPS.CARD_PASSWORD]: () => /* @__PURE__ */ jsxRuntimeExports.jsx(
+            CardInputBox,
+            {
+              title: "비밀번호를 입력해 주세요",
+              guideText: "앞의 2자리를 입력해 주세요",
+              InputComponent: /* @__PURE__ */ jsxRuntimeExports.jsx(CardPasswordInput, { ...controlledCardPassword })
+            }
+          )
+        }
       }
-    ),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      CardInputBox,
-      {
-        title: "CVC 번호를 입력해 주세요",
-        InputComponent: /* @__PURE__ */ jsxRuntimeExports.jsx(CVCInputs, { CVCState, handleCVCChange })
-      }
-    )
+    ) }, step)),
+    isAddFormSubmit && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: styles$d.submitButtonContainer, children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "submit", className: styles$d.submitButton, children: "확인" }) })
   ] });
 }
+const previewCard = "_previewCard_1d3tk_1";
+const previewHeader = "_previewHeader_1d3tk_14";
+const chip = "_chip_1d3tk_20";
+const cardNumbers = "_cardNumbers_1d3tk_27";
+const cardNumber = "_cardNumber_1d3tk_27";
+const dot$1 = "_dot_1d3tk_42";
+const expire = "_expire_1d3tk_49";
+const cardOwner = "_cardOwner_1d3tk_67";
+const styles$3 = {
+  previewCard,
+  previewHeader,
+  chip,
+  cardNumbers,
+  cardNumber,
+  dot: dot$1,
+  expire,
+  cardOwner,
+  "BC카드": "_BC카드_1d3tk_75",
+  "신한카드": "_신한카드_1d3tk_79",
+  "카카오뱅크": "_카카오뱅크_1d3tk_83",
+  "현대카드": "_현대카드_1d3tk_87",
+  "우리카드": "_우리카드_1d3tk_91",
+  "롯데카드": "_롯데카드_1d3tk_95",
+  "하나카드": "_하나카드_1d3tk_99",
+  "국민카드": "_국민카드_1d3tk_103"
+};
+const VisaCardImage = "data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20width='62'%20height='37'%20viewBox='0%200%2073%2055'%20fill='none'%3e%3crect%20x='0.592863'%20y='0.592863'%20width='81.815'%20height='55.7291'%20rx='6.52149'%20fill='white'%20stroke='%23D9D9D9'%20stroke-width='1.18573'/%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M25.1974%2038.5556H20.1691L16.3986%2024.1707C16.2196%2023.509%2015.8396%2022.924%2015.2806%2022.6483C13.8857%2021.9554%2012.3485%2021.404%2010.6716%2021.1259V20.5721H18.7717C19.8897%2020.5721%2020.7281%2021.404%2020.8678%2022.3702L22.8242%2032.7465L27.85%2020.5721H32.7385L25.1974%2038.5556ZM35.5334%2038.5556H30.7847L34.695%2020.5721H39.4437L35.5334%2038.5556ZM45.5872%2025.5541C45.727%2024.5855%2046.5654%2024.0317%2047.5436%2024.0317C49.0808%2023.8926%2050.7552%2024.1707%2052.1526%2024.8612L52.9911%2020.9893C51.5937%2020.4354%2050.0565%2020.1573%2048.6615%2020.1573C44.0525%2020.1573%2040.6987%2022.6483%2040.6987%2026.1055C40.6987%2028.7355%2043.0743%2030.1165%2044.7512%2030.9484C46.5654%2031.778%2047.2641%2032.3318%2047.1244%2033.1613C47.1244%2034.4056%2045.727%2034.9594%2044.332%2034.9594C42.6551%2034.9594%2040.9782%2034.5447%2039.4435%2033.8518L38.6051%2037.7261C40.282%2038.4166%2042.0962%2038.6947%2043.7731%2038.6947C48.941%2038.8314%2052.1526%2036.3428%2052.1526%2032.6075C52.1526%2027.9036%2045.5872%2027.6279%2045.5872%2025.5541ZM68.7723%2038.5556L65.0017%2020.5721H60.9516C60.1132%2020.5721%2059.2747%2021.1259%2058.9953%2021.9554L52.0131%2038.5556H56.9016L57.8773%2035.928H63.8838L64.4427%2038.5556H68.7723ZM61.6503%2025.415L63.0453%2032.1927H59.135L61.6503%2025.415Z'%20fill='%23172B85'/%3e%3c/svg%3e";
+const MasterCardImage = "data:image/svg+xml,%3csvg%20width='60'%20height='50'%20viewBox='0%200%2037%2030'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M33.9362%201H4.06383C2.37172%201%201%202.27093%201%203.83871V20.1613C1%2021.7291%202.37172%2023%204.06383%2023H33.9362C35.6283%2023%2037%2021.7291%2037%2020.1613V3.83871C37%202.27093%2035.6283%201%2033.9362%201Z'%20fill='white'%20stroke='black'%20stroke-opacity='0.1'%20stroke-width='0.5'/%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M18.8773%2016.7208C17.7252%2017.7122%2016.2307%2018.3107%2014.5977%2018.3107C10.9539%2018.3107%208%2015.331%208%2011.6553C8%207.9797%2010.9539%205%2014.5977%205C16.2307%205%2017.7252%205.59848%2018.8773%206.58987C20.0293%205.59848%2021.5238%205%2023.1568%205C26.8006%205%2029.7545%207.9797%2029.7545%2011.6553C29.7545%2015.331%2026.8006%2018.3107%2023.1568%2018.3107C21.5238%2018.3107%2020.0293%2017.7122%2018.8773%2016.7208Z'%20fill='%23ED0006'/%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M18.8772%2016.7208C20.2958%2015.5001%2021.1953%2013.6837%2021.1953%2011.6553C21.1953%209.627%2020.2958%207.81059%2018.8772%206.58988C20.0293%205.59848%2021.5238%205%2023.1568%205C26.8006%205%2029.7545%207.9797%2029.7545%2011.6553C29.7545%2015.331%2026.8006%2018.3107%2023.1568%2018.3107C21.5238%2018.3107%2020.0293%2017.7122%2018.8772%2016.7208Z'%20fill='%23F9A000'/%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M18.8773%2016.7208C20.2959%2015.5001%2021.1954%2013.6837%2021.1954%2011.6554C21.1954%209.62702%2020.2959%207.81061%2018.8773%206.5899C17.4587%207.81061%2016.5592%209.62702%2016.5592%2011.6554C16.5592%2013.6837%2017.4587%2015.5001%2018.8773%2016.7208Z'%20fill='%23FF5E00'/%3e%3c/svg%3e";
+const dot = "_dot_1knpe_1";
+const styles$2 = {
+  dot
+};
+function Dot() {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: styles$2.dot });
+}
+const getCardBrand = (cardNumber2) => {
+  const cardNumberString = String(cardNumber2);
+  if (cardNumberString.startsWith("4")) {
+    return "VISA";
+  }
+  const firstTwoDigits = Number(cardNumberString.slice(0, 2));
+  if (firstTwoDigits >= 51 && firstTwoDigits <= 55) {
+    return "MASTERCARD";
+  }
+  return "DEFAULT";
+};
+const CARD_BRAND_IMAGES = {
+  VISA: VisaCardImage,
+  MASTERCARD: MasterCardImage,
+  DEFAULT: ""
+};
+function AddCardPreview({
+  cardNumberState,
+  cardType,
+  expireDate
+}) {
+  const cardBrand = getCardBrand(Number(cardNumberState.first.value));
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      className: `${styles$3.previewCard} ${cardType ? styles$3[cardType] : ""}`,
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$3.previewHeader, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: styles$3.chip }),
+          cardBrand !== "DEFAULT" && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: CARD_BRAND_IMAGES[cardBrand], alt: "카드 브랜드" }) })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$3.cardNumbers, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: styles$3.cardNumber, children: cardNumberState.first.value }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: styles$3.cardNumber, children: cardNumberState.second.value }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: styles$3.dot, children: Array.from({ length: cardNumberState.third.value.length }).map(
+            (_, index) => /* @__PURE__ */ jsxRuntimeExports.jsx(Dot, {}, index)
+          ) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: styles$3.dot, children: Array.from({ length: cardNumberState.fourth.value.length }).map(
+            (_, index) => /* @__PURE__ */ jsxRuntimeExports.jsx(Dot, {}, index)
+          ) })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$3.expire, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: expireDate.MM.value }),
+          (expireDate.MM.value || expireDate.YY.value) && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "/" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: expireDate.YY.value })
+        ] })
+      ]
+    }
+  );
+}
+const INITIAL_CARD_PASSWORD_SATE = {
+  value: "",
+  errorMessage: ""
+};
+const CARD_PASSWORD_ERROR_MESSAGE = {
+  LENGTH: "카드 비밀번호는 2자리 숫자여야 합니다.",
+  NUMBER: "카드 비밀번호는 숫자여야 합니다."
+};
+const validateCardPassword = (value) => {
+  if (value === "") {
+    return "";
+  }
+  if (isNaN(Number(value))) {
+    return CARD_PASSWORD_ERROR_MESSAGE.NUMBER;
+  }
+  if (value.length < 2) {
+    return CARD_PASSWORD_ERROR_MESSAGE.LENGTH;
+  }
+  return "";
+};
+const useControlledCardPassword = () => {
+  const [cardPasswordState, setCardPasswordState] = reactExports.useState(
+    INITIAL_CARD_PASSWORD_SATE
+  );
+  const handleCardPasswordChange = reactExports.useCallback((value) => {
+    if (value.length > 2) {
+      return;
+    }
+    setCardPasswordState({
+      value,
+      errorMessage: validateCardPassword(value)
+    });
+  }, []);
+  return {
+    cardPasswordState,
+    handleCardPasswordChange
+  };
+};
 const isNaN$1 = (value) => {
   return typeof value === "number" && Number.isNaN(value);
 };
@@ -12342,6 +14979,23 @@ const useControlledCardNumber = () => {
   const [cardNumberState, setCardNumberState] = reactExports.useState(
     INITIAL_CARD_NUMBER_STATE
   );
+  const cardNumberInputRefs = {
+    first: reactExports.useRef(null),
+    second: reactExports.useRef(null),
+    third: reactExports.useRef(null),
+    fourth: reactExports.useRef(null)
+  };
+  const handleNextInputFocus = (key, value, isValid) => {
+    if (value.length !== 4 || isValid || key === "fourth") {
+      return;
+    }
+    const index = CARD_NUMBER_INPUT_KEYS.indexOf(key);
+    const nextKey = CARD_NUMBER_INPUT_KEYS[index + 1];
+    const nextInputRef = cardNumberInputRefs[nextKey];
+    if (nextInputRef.current) {
+      nextInputRef.current.focus();
+    }
+  };
   const handleCardNumberChange = reactExports.useCallback(
     (key, value) => {
       if (value.length > 4) {
@@ -12356,10 +15010,50 @@ const useControlledCardNumber = () => {
           isError: isValid
         }
       }));
+      handleNextInputFocus(key, value, isValid);
     },
     []
   );
-  return { cardNumberState, handleCardNumberChange };
+  const checkCardNumberNextStep = reactExports.useCallback(
+    (cardNumberState2) => {
+      const cardNumberValues = Object.values(cardNumberState2);
+      const isError = cardNumberValues.some(({ isError: isError2 }) => isError2);
+      if (isError) {
+        return false;
+      }
+      const isAllFilledCardNumber = cardNumberValues.every(
+        ({ value }) => value.length === 4
+      );
+      if (!isAllFilledCardNumber) {
+        return false;
+      }
+      return true;
+    },
+    []
+  );
+  return {
+    cardNumberState,
+    cardNumberInputRefs,
+    handleCardNumberChange,
+    isNextStep: checkCardNumberNextStep(cardNumberState)
+  };
+};
+const useControlledCardType = () => {
+  const [cardType, setCardType] = reactExports.useState(null);
+  const handleCardTypeChange = reactExports.useCallback((value) => {
+    setCardType(value);
+  }, []);
+  const checkCardTypeNextStep = reactExports.useCallback((cardType2) => {
+    if (cardType2 === null) {
+      return false;
+    }
+    return true;
+  }, []);
+  return {
+    cardType,
+    handleCardTypeChange,
+    isNextStep: checkCardTypeNextStep(cardType)
+  };
 };
 const useControlledCVC = () => {
   const [CVCState, setCVCState] = reactExports.useState({
@@ -12378,7 +15072,15 @@ const useControlledCVC = () => {
       isError: isValid
     }));
   }, []);
-  return { CVCState, handleCVCChange };
+  const checkCVCNextStep = reactExports.useCallback(
+    ({ value, isError }) => value.length === 3 && !isError,
+    []
+  );
+  return {
+    CVCState,
+    handleCVCChange,
+    isNextStep: checkCVCNextStep(CVCState)
+  };
 };
 const isValidMonth = (month) => {
   return month >= 1 && month <= 12;
@@ -12412,17 +15114,34 @@ const useControlledExpireDate = () => {
   const [expireDate, setExpireDate] = reactExports.useState(
     INITIAL_EXPIRE_DATE_STATE
   );
+  const expireDateInputRefs = {
+    MM: reactExports.useRef(null),
+    YY: reactExports.useRef(null)
+  };
+  const handleNextInputFocus = (key, value, isValid) => {
+    if (value.length !== 2 || isValid) {
+      return;
+    }
+    const index = EXPIRE_DATE_KEYS.indexOf(key);
+    const nextKey = EXPIRE_DATE_KEYS[index + 1];
+    const nextInputRef = expireDateInputRefs[nextKey];
+    if (nextInputRef.current) {
+      nextInputRef.current.focus();
+    }
+  };
   const handleExpireMonthChange = reactExports.useCallback((value) => {
     if (value.length > 2) {
       return;
     }
+    const errorMessage2 = validateMonth(value);
     setExpireDate((prevState) => ({
       ...prevState,
       MM: {
         value,
-        errorMessage: validateMonth(value)
+        errorMessage: errorMessage2
       }
     }));
+    handleNextInputFocus("MM", value, Boolean(errorMessage2));
   }, []);
   const handleExpireMonthBlur = reactExports.useCallback((value) => {
     if (value.length !== 1) {
@@ -12442,123 +15161,170 @@ const useControlledExpireDate = () => {
     if (value.length > 2) {
       return;
     }
+    const errorMessage2 = validateYear(value);
     setExpireDate((prevState) => ({
       ...prevState,
       YY: {
         value,
-        errorMessage: validateYear(value)
+        errorMessage: errorMessage2
       }
     }));
   }, []);
+  const checkExpireDateNextStep = reactExports.useCallback((expireDate2) => {
+    const expireDateValues = Object.values(expireDate2);
+    const isValidLength = expireDateValues.every(
+      (item) => item.value.length === 2
+    );
+    const isValid = expireDateValues.every((item) => item.errorMessage === "");
+    const isValidExpireDate = isValidLength && isValid;
+    if (!isValidExpireDate) {
+      return false;
+    }
+    return true;
+  }, []);
   return {
     expireDate,
-    handleExpireMonthChange,
-    handleExpireYearChange,
-    handleExpireMonthBlur
-  };
-};
-const useAddCard = () => {
-  const { cardNumberState, handleCardNumberChange } = useControlledCardNumber();
-  const {
-    expireDate,
-    handleExpireMonthChange,
-    handleExpireYearChange,
-    handleExpireMonthBlur
-  } = useControlledExpireDate();
-  const { CVCState, handleCVCChange } = useControlledCVC();
-  const addCardState = {
-    cardNumberState,
-    handleCardNumberChange,
-    expireDate,
+    expireDateInputRefs,
     handleExpireMonthChange,
     handleExpireYearChange,
     handleExpireMonthBlur,
-    CVCState,
-    handleCVCChange
+    isNextStep: checkExpireDateNextStep(expireDate)
   };
-  const previewState = { cardNumberState, expireDate };
+};
+const useAddCard = () => {
+  const controlledCardNumber = useControlledCardNumber();
+  const controlledCardType = useControlledCardType();
+  const controlledExpireDate = useControlledExpireDate();
+  const controlledCVC = useControlledCVC();
+  const controlledCardPassword = useControlledCardPassword();
+  const addCardState = {
+    controlledCardNumber,
+    controlledCardType,
+    controlledExpireDate,
+    controlledCVC,
+    controlledCardPassword
+  };
+  const previewState = {
+    cardNumberState: controlledCardNumber.cardNumberState,
+    cardType: controlledCardType.cardType,
+    expireDate: controlledExpireDate.expireDate,
+    CVCState: controlledCVC.CVCState
+  };
   return { addCardState, previewState };
 };
-const previewCard = "_previewCard_8qvoe_1";
-const previewHeader = "_previewHeader_8qvoe_14";
-const chip = "_chip_8qvoe_20";
-const cardNumber = "_cardNumber_8qvoe_27";
-const dots = "_dots_8qvoe_43";
-const expire = "_expire_8qvoe_48";
-const styles$1 = {
-  previewCard,
-  previewHeader,
-  chip,
-  cardNumber,
-  dots,
-  expire
-};
-const VisaCardImage = "data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20width='72'%20height='48'%20viewBox='0%200%2083%2057'%20fill='none'%3e%3crect%20x='0.592863'%20y='0.592863'%20width='81.815'%20height='55.7291'%20rx='6.52149'%20fill='white'%20stroke='%23D9D9D9'%20stroke-width='1.18573'/%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M25.1974%2038.5556H20.1691L16.3986%2024.1707C16.2196%2023.509%2015.8396%2022.924%2015.2806%2022.6483C13.8857%2021.9554%2012.3485%2021.404%2010.6716%2021.1259V20.5721H18.7717C19.8897%2020.5721%2020.7281%2021.404%2020.8678%2022.3702L22.8242%2032.7465L27.85%2020.5721H32.7385L25.1974%2038.5556ZM35.5334%2038.5556H30.7847L34.695%2020.5721H39.4437L35.5334%2038.5556ZM45.5872%2025.5541C45.727%2024.5855%2046.5654%2024.0317%2047.5436%2024.0317C49.0808%2023.8926%2050.7552%2024.1707%2052.1526%2024.8612L52.9911%2020.9893C51.5937%2020.4354%2050.0565%2020.1573%2048.6615%2020.1573C44.0525%2020.1573%2040.6987%2022.6483%2040.6987%2026.1055C40.6987%2028.7355%2043.0743%2030.1165%2044.7512%2030.9484C46.5654%2031.778%2047.2641%2032.3318%2047.1244%2033.1613C47.1244%2034.4056%2045.727%2034.9594%2044.332%2034.9594C42.6551%2034.9594%2040.9782%2034.5447%2039.4435%2033.8518L38.6051%2037.7261C40.282%2038.4166%2042.0962%2038.6947%2043.7731%2038.6947C48.941%2038.8314%2052.1526%2036.3428%2052.1526%2032.6075C52.1526%2027.9036%2045.5872%2027.6279%2045.5872%2025.5541ZM68.7723%2038.5556L65.0017%2020.5721H60.9516C60.1132%2020.5721%2059.2747%2021.1259%2058.9953%2021.9554L52.0131%2038.5556H56.9016L57.8773%2035.928H63.8838L64.4427%2038.5556H68.7723ZM61.6503%2025.415L63.0453%2032.1927H59.135L61.6503%2025.415Z'%20fill='%23172B85'/%3e%3c/svg%3e";
-const MasterCardImage = "data:image/svg+xml,%3csvg%20width='78'%20height='64'%20viewBox='0%200%2037%2030'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M33.9362%201H4.06383C2.37172%201%201%202.27093%201%203.83871V20.1613C1%2021.7291%202.37172%2023%204.06383%2023H33.9362C35.6283%2023%2037%2021.7291%2037%2020.1613V3.83871C37%202.27093%2035.6283%201%2033.9362%201Z'%20fill='white'%20stroke='black'%20stroke-opacity='0.1'%20stroke-width='0.5'/%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M18.8773%2016.7208C17.7252%2017.7122%2016.2307%2018.3107%2014.5977%2018.3107C10.9539%2018.3107%208%2015.331%208%2011.6553C8%207.9797%2010.9539%205%2014.5977%205C16.2307%205%2017.7252%205.59848%2018.8773%206.58987C20.0293%205.59848%2021.5238%205%2023.1568%205C26.8006%205%2029.7545%207.9797%2029.7545%2011.6553C29.7545%2015.331%2026.8006%2018.3107%2023.1568%2018.3107C21.5238%2018.3107%2020.0293%2017.7122%2018.8773%2016.7208Z'%20fill='%23ED0006'/%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M18.8772%2016.7208C20.2958%2015.5001%2021.1953%2013.6837%2021.1953%2011.6553C21.1953%209.627%2020.2958%207.81059%2018.8772%206.58988C20.0293%205.59848%2021.5238%205%2023.1568%205C26.8006%205%2029.7545%207.9797%2029.7545%2011.6553C29.7545%2015.331%2026.8006%2018.3107%2023.1568%2018.3107C21.5238%2018.3107%2020.0293%2017.7122%2018.8772%2016.7208Z'%20fill='%23F9A000'/%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M18.8773%2016.7208C20.2959%2015.5001%2021.1954%2013.6837%2021.1954%2011.6554C21.1954%209.62702%2020.2959%207.81061%2018.8773%206.5899C17.4587%207.81061%2016.5592%209.62702%2016.5592%2011.6554C16.5592%2013.6837%2017.4587%2015.5001%2018.8773%2016.7208Z'%20fill='%23FF5E00'/%3e%3c/svg%3e";
-const dot = "_dot_xnpfw_1";
-const styles = {
-  dot
-};
-function Dot() {
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: styles.dot });
-}
-const getCardBrand = (cardNumber2) => {
-  if (cardNumber2.toString().startsWith("4")) {
-    return "VISA";
-  }
-  if (cardNumber2 >= 51 && cardNumber2 <= 55) {
-    return "MASTERCARD";
-  }
-  return "DEFAULT";
-};
-const CARD_BRAND_IMAGES = {
-  VISA: VisaCardImage,
-  MASTERCARD: MasterCardImage,
-  DEFAULT: ""
-};
-function AddCardPreview({ cardNumberState, expireDate }) {
-  const cardBrand = getCardBrand(Number(cardNumberState.first.value));
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$1.previewCard, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$1.previewHeader, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: styles$1.chip }),
-      cardBrand !== "DEFAULT" && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: CARD_BRAND_IMAGES[cardBrand], alt: "카드 브랜드" }) })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$1.cardNumber, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: cardNumberState.first.value }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: cardNumberState.second.value }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: styles$1.dots, children: Array.from({ length: cardNumberState.third.value.length }).map(
-        (_, index) => /* @__PURE__ */ jsxRuntimeExports.jsx(Dot, {}, index)
-      ) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: styles$1.dots, children: Array.from({ length: cardNumberState.fourth.value.length }).map(
-        (_, index) => /* @__PURE__ */ jsxRuntimeExports.jsx(Dot, {}, index)
-      ) })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$1.expire, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: expireDate.MM.value }),
-      (expireDate.MM.value || expireDate.YY.value) && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "/" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: expireDate.YY.value })
-    ] })
-  ] });
-}
-function AddCard() {
+function AddCardPage() {
   const {
     addCardState,
-    previewState: { cardNumberState, expireDate }
+    previewState: { cardType, cardNumberState, expireDate, CVCState }
   } = useAddCard();
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$9.container, children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$e.container, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       AddCardPreview,
       {
+        cardType,
         cardNumberState,
-        expireDate
+        expireDate,
+        CVCState
       }
     ),
     /* @__PURE__ */ jsxRuntimeExports.jsx(AddCardForm, { addCardState })
   ] });
 }
+const container$1 = "_container_1sxiq_1";
+const title = "_title_1sxiq_7";
+const addCardLink = "_addCardLink_1sxiq_16";
+const styles$1 = {
+  container: container$1,
+  title,
+  addCardLink
+};
+function HomePage() {
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$1.container, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: styles$1.title, children: "메인 페이지" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { to: PAGE_URL.ADD_CARD, className: styles$1.addCardLink, children: "카드 추가 하기" })
+  ] });
+}
+const container = "_container_1uy33_1";
+const textBox = "_textBox_1uy33_11";
+const button = "_button_1uy33_21";
+const styles = {
+  container,
+  textBox,
+  button
+};
+function CheckIcon({ fill = "#333333" }) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "svg",
+    {
+      xmlns: "http://www.w3.org/2000/svg",
+      width: "76",
+      height: "76",
+      viewBox: "0 0 76 76",
+      fill: "none",
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "38", cy: "38", r: "38", fill }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M23 34.0377L35.0471 48L55 28",
+            stroke: "white",
+            strokeWidth: "7.49999",
+            strokeLinecap: "round",
+            strokeLinejoin: "round"
+          }
+        )
+      ]
+    }
+  );
+}
+function AddCardSuccessPage() {
+  var _a, _b;
+  const navigate = useNavigate();
+  const location = useLocation();
+  reactExports.useEffect(() => {
+    if (!location.state) {
+      navigate(PAGE_URL.HOME);
+    }
+  }, []);
+  const handleCheckButtonClick = () => {
+    navigate(PAGE_URL.ADD_CARD);
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles.container, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(CheckIcon, { fill: "#007bff" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles.textBox, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { children: [
+        (_a = location.state) == null ? void 0 : _a.firstCardNumber,
+        "로 시작하는"
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { children: [
+        (_b = location.state) == null ? void 0 : _b.cardType,
+        "가 등록되었어요."
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "button",
+      {
+        type: "button",
+        className: styles.button,
+        onClick: handleCheckButtonClick,
+        children: "확인"
+      }
+    )
+  ] });
+}
 function App() {
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(AddCard, {});
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Routes, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: PAGE_URL.HOME, element: /* @__PURE__ */ jsxRuntimeExports.jsx(HomePage, {}) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: PAGE_URL.ADD_CARD, element: /* @__PURE__ */ jsxRuntimeExports.jsx(AddCardPage, {}) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Route,
+      {
+        path: PAGE_URL.ADD_CARD_SUCCESS,
+        element: /* @__PURE__ */ jsxRuntimeExports.jsx(AddCardSuccessPage, {})
+      }
+    )
+  ] });
 }
 ReactDOM.createRoot(document.getElementById("root")).render(
-  /* @__PURE__ */ jsxRuntimeExports.jsx(React.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) })
+  /* @__PURE__ */ jsxRuntimeExports.jsx(React.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(BrowserRouter, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(MobileLayout, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) }) }) })
 );
