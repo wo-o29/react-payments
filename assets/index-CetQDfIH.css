@@ -464,33 +464,33 @@ input::-webkit-inner-spin-button {
   font-family: "Noto Sans KR";
   font-size: 0.75rem;
 }
-._previewCard_1d3tk_1 {
+._previewCard_1wrff_1 {
   margin: 0 auto;
   width: 340px;
   height: 210px;
   background-color: #333333;
   padding: 1.25rem 1.5rem;
-  border-radius: 4px;
+  border-radius: 8px;
   box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.25);
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
-._previewHeader_1d3tk_14 {
+._previewHeader_1wrff_14 {
   display: flex;
   justify-content: space-between;
   height: 40px;
 }
 
-._chip_1d3tk_20 {
+._chip_1wrff_20 {
   width: 3.125rem;
   height: 2.125rem;
   background-color: #ddcd78;
   border-radius: 4px;
 }
 
-._cardNumbers_1d3tk_27 {
+._cardNumbers_1wrff_27 {
   color: #fff;
   display: flex;
   align-items: center;
@@ -500,19 +500,19 @@ input::-webkit-inner-spin-button {
   height: 20px;
 }
 
-._cardNumber_1d3tk_27 {
+._cardNumber_1wrff_27 {
   width: 55px;
   letter-spacing: 5px;
 }
 
-._dot_1d3tk_42 {
+._dot_1wrff_42 {
   display: flex;
   gap: 0.65rem;
   width: 65px;
   padding-bottom: 0.25rem;
 }
 
-._expire_1d3tk_49 {
+._expire_1wrff_49 {
   color: #fff;
   font-size: 1.125rem;
   font-weight: 500;
@@ -520,17 +520,17 @@ input::-webkit-inner-spin-button {
   height: 20px;
 }
 
-._expire_1d3tk_49 > span {
+._expire_1wrff_49 > span {
   display: inline-block;
   width: 25px;
 }
 
-._expire_1d3tk_49 > span:nth-child(2) {
+._expire_1wrff_49 > span:nth-child(2) {
   width: auto;
   padding-right: 0.25rem;
 }
 
-._cardOwner_1d3tk_67 {
+._cardOwner_1wrff_67 {
   color: #fff;
   font-size: 1.125rem;
   font-weight: 500;
@@ -538,35 +538,35 @@ input::-webkit-inner-spin-button {
   height: 20px;
 }
 
-._BC카드_1d3tk_75 {
+._BC카드_1wrff_75 {
   background-color: #f04651;
 }
 
-._신한카드_1d3tk_79 {
+._신한카드_1wrff_79 {
   background-color: #0046ff;
 }
 
-._카카오뱅크_1d3tk_83 {
+._카카오뱅크_1wrff_83 {
   background-color: #ffe600;
 }
 
-._현대카드_1d3tk_87 {
+._현대카드_1wrff_87 {
   background-color: #000;
 }
 
-._우리카드_1d3tk_91 {
+._우리카드_1wrff_91 {
   background-color: #007bc8;
 }
 
-._롯데카드_1d3tk_95 {
+._롯데카드_1wrff_95 {
   background-color: #ed1c24;
 }
 
-._하나카드_1d3tk_99 {
+._하나카드_1wrff_99 {
   background-color: #009490;
 }
 
-._국민카드_1d3tk_103 {
+._국민카드_1wrff_103 {
   background-color: #6a6056;
 }
 ._dot_1knpe_1 {
